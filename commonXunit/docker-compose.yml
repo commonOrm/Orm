@@ -1,0 +1,23 @@
+﻿version: '3.4'
+
+services:
+  test_pgsql: 
+    image: postgres:9.6.20-alpine
+    container_name: test_pgsql
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=test_pgsql
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=a123456+
+    restart: always
+  test_mssql:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    container_name: test_mssql
+    ports:
+      - 1433:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Express
+      - SA_PASSWORD=a123456+
+    restart: always
