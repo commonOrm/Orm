@@ -21,7 +21,7 @@ public static class ServiceLocator
 public class ModelBase<T> where T : ModelBase<T>, new()
 {
     public static IConnectionProvider conn { get; set; }
-    public static SQLSign sqlsign;
+    public static SQLSign sqlsign { get; set; }
 
     public ModelBase()
     {
@@ -35,17 +35,16 @@ public class ModelBase<T> where T : ModelBase<T>, new()
     static void init()
     {
         IConfiguration configuration = ServiceLocator.Instance.GetService(typeof(IConfiguration)) as IConfiguration;
-        if (conn == null || configuration["ASPNETCORE_ENVIRONMENT"] == "Development")
+        var environment = configuration["ASPNETCORE_ENVIRONMENT"];
+        if (conn == null || environment == "Development")
         {
             if (ServiceLocator.conn == null) throw new MyException("ServiceLocator.conn is Null");
             conn = ServiceLocator.conn;
-
-            if (conn is MssqlConnectionProvider)
-                sqlsign = new SQLSign_mssql();
-            else
-                sqlsign = new SQLSign_pgsql();
-
         }
+        if (conn is MssqlConnectionProvider)
+            sqlsign = new SQLSign_mssql();
+        else
+            sqlsign = new SQLSign_pgsql();
     }
 
     /// <summary>

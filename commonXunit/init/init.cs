@@ -44,13 +44,13 @@ namespace commonXunit.init
             Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
             var builder = new ConfigurationBuilder()
                //.SetBasePath()
-               .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-               .AddJsonFile("appsettings.Development.Postgresql.json", optional: true, reloadOnChange: true)
+               .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+               .AddJsonFile("appsettings.Development.Postgresql.json", optional: false, reloadOnChange: true)
                .AddEnvironmentVariables();
             var Configuration = builder.Build();
             services.AddSingleton<IConfiguration>(Configuration);
 
-            services.AddSingleton<IConnectionProvider, common.ConnectionProvider.NpgsqlConnectionProvider>();
+            services.AddScoped<IConnectionProvider, common.ConnectionProvider.NpgsqlConnectionProvider>();
             ServiceLocator.Instance = services.BuildServiceProvider();
             conn = new common.ConnectionProvider.NpgsqlConnectionProvider(Configuration);
             ServiceLocator.conn = conn;
@@ -173,7 +173,7 @@ namespace commonXunit.init
             var Configuration = builder.Build();
             services.AddSingleton<IConfiguration>(Configuration);
 
-            services.AddSingleton<IConnectionProvider, common.ConnectionProvider.MssqlConnectionProvider>();
+            services.AddScoped<IConnectionProvider, common.ConnectionProvider.MssqlConnectionProvider>();
             ServiceLocator.Instance = services.BuildServiceProvider();
             conn = new common.ConnectionProvider.MssqlConnectionProvider(Configuration);
             ServiceLocator.conn = conn;
