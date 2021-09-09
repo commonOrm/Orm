@@ -6,6 +6,8 @@ services:
     container_name: test_pgsql
     ports:
       - 5432:5432
+    volumes:
+      - /etc/localtime:/etc/localtime
     environment:
       - POSTGRES_DB=test_pgsql
       - POSTGRES_USER=postgres
@@ -16,6 +18,9 @@ services:
     container_name: test_mssql
     ports:
       - 1433:1433
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - ./initdb:/initdb
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_PID=Express
