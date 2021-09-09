@@ -15,7 +15,6 @@ using Microsoft.Extensions.Configuration;
 public static class ServiceLocator
 {
     public static IServiceProvider Instance { get; set; }
-    public static IConnectionProvider conn { get; set; }
 }
 
 public class ModelBase<T> where T : ModelBase<T>, new()
@@ -35,17 +34,16 @@ public class ModelBase<T> where T : ModelBase<T>, new()
     static void init()
     {
         IConfiguration configuration = ServiceLocator.Instance.GetService(typeof(IConfiguration)) as IConfiguration;
-        var environment = configuration["ASPNETCORE_ENVIRONMENT"];
-        if (conn == null || environment == "Development")
+        if (conn == null || configuration["ASPNETCORE_ENVIRONMENT"].ToLower() == "Development".ToLower())
         {
-            if (ServiceLocator.conn == null) throw new MyException("ServiceLocator.conn is Null");
-            conn = ServiceLocator.conn;
+            if (ServiceLocator.Instance == null) throw new MyException("ServiceLocator.Instance is Null");
+            conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
+
+            sqlsign = SQLSign.Create(conn);
         }
-        if (conn is MssqlConnectionProvider)
-            sqlsign = new SQLSign_mssql();
-        else
-            sqlsign = new SQLSign_pgsql();
     }
+
+
 
     /// <summary>
     /// 获取表名
@@ -371,17 +369,15 @@ public class ModelBase<T> where T : ModelBase<T>, new()
         if (string.IsNullOrWhiteSpace(where))
             where = "1=1";
 
-        if (orderby != null)
-            orderby = " ORDER BY " + orderby;
-        else
-            orderby = "";
+        orderby = orderby ?? @$" ""{getPrimaryKeyName()}"" ASC ";
 
         //return new List2<T>(conn, getTableName(), where, param, top, orderby);
         using (var connection = conn.GetDbConnection())
         {
             var tablename = getTableName();
             DataTable table = new DataTable("MyTable");
-            var reader = await connection.ExecuteReaderAsync(@$"SELECT {fields} FROM ""{tablename}"" WHERE {where} {orderby} LIMIT {top}", param);
+            var sql = sqlsign.Create_GetListSQLEx(fields, tablename, where, orderby, top);
+            var reader = await connection.ExecuteReaderAsync(sql, param);
             table.Load(reader);
             return table;
         }

@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using common.ORM;
+using Dapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 public class List2<T> where T : ModelBase<T>, new()
 {
     private IConnectionProvider conn;
+    private SQLSign sqlsign;
     private string fields = "*";
     private string tablename;
     private string where;
@@ -18,6 +20,7 @@ public class List2<T> where T : ModelBase<T>, new()
     public List2(IConnectionProvider conn, string tablename, string where, object param, int top, string orderby)
     {
         this.conn = conn;
+        this.sqlsign = SQLSign.Create(conn);
         this.tablename = tablename;
         this.where = where;
         this.param = param;
@@ -38,7 +41,8 @@ public class List2<T> where T : ModelBase<T>, new()
     {
         using (var connection = conn.GetDbConnection())
         {
-            var result = await connection.QueryAsync<T>(@$"SELECT {fields} FROM ""{tablename}"" WHERE {where} ORDER BY {orderby} LIMIT {top}", param);
+            var sql = sqlsign.Create_GetListSQLEx(fields, tablename, where, orderby, top);
+            var result = await connection.QueryAsync<T>(sql, param);
             return result.ToList();
         }
     }
@@ -47,7 +51,7 @@ public class List2<T> where T : ModelBase<T>, new()
     {
         using (var connection = conn.GetDbConnection())
         {
-            var sql = @$"SELECT COUNT(*) FROM ""{tablename}"" WHERE {where} LIMIT {top}";
+            var sql = sqlsign.Create_GetCountSQLEx(tablename, where);
             var result = await connection.ExecuteScalarAsync<int>(sql, param);
             return result;
         }

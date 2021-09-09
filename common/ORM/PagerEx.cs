@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using common.ORM;
+using Dapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,19 +8,21 @@ using System.Threading.Tasks;
 public class PagerEx<T> where T : ModelBase<T>, new()
 {
     private IConnectionProvider conn;
+    private SQLSign sqlsign;
     private string tablename;
     private string where;
     private object param;
     private string orderby;
 
-    public int PageIndex;
+    public int PageIndex; //从0开始 【超过页数后返回空即可】
     public int PageSize;
     public int RecordCount;
     public int PageCount;
 
     public PagerEx(string tablename, string where, object param, int pageindex, int pagesize, string orderby)
     {
-        conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
+        this.conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
+        this.sqlsign = SQLSign.Create(conn);
         this.tablename = tablename;
         this.where = where;
         this.param = param;
@@ -43,12 +46,8 @@ public class PagerEx<T> where T : ModelBase<T>, new()
             //PageIndex = Math.Max(0, PageIndex);
 
             //从0开始 【超过页数后返回空即可】
-            return connection.QueryAsync<T>(@$"SELECT * FROM ""{tablename}"" 
-                            WHERE {where} 
-                            ORDER BY {orderby} 
-                            LIMIT {PageSize} OFFSET {PageIndex * PageSize}",
-                param)
-                .Result.ToList();
+            string sql = sqlsign.Create_GetPagerSQLEx(tablename, where, orderby, PageSize, PageIndex);
+            return connection.QueryAsync<T>(sql, param).Result.ToList();
         }
     }
 }

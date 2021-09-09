@@ -49,11 +49,9 @@ namespace commonXunit.init
                .AddEnvironmentVariables();
             var Configuration = builder.Build();
             services.AddSingleton<IConfiguration>(Configuration);
-
             services.AddScoped<IConnectionProvider, common.ConnectionProvider.NpgsqlConnectionProvider>();
             ServiceLocator.Instance = services.BuildServiceProvider();
-            conn = new common.ConnectionProvider.NpgsqlConnectionProvider(Configuration);
-            ServiceLocator.conn = conn;
+            conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
 
             DropAllTable().Wait();
             CreateAllTableAndInit().Wait();
@@ -175,8 +173,7 @@ namespace commonXunit.init
 
             services.AddScoped<IConnectionProvider, common.ConnectionProvider.MssqlConnectionProvider>();
             ServiceLocator.Instance = services.BuildServiceProvider();
-            conn = new common.ConnectionProvider.MssqlConnectionProvider(Configuration);
-            ServiceLocator.conn = conn;
+            conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
 
             DropAllTable().Wait();
             CreateAllTableAndInit().Wait();
