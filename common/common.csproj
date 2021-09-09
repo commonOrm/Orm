@@ -4,6 +4,15 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageId>commonOrm</PackageId>
+    <Authors>ljg</Authors>
+    <Product />
+    <Copyright>ljg</Copyright>
+    <PackageProjectUrl>https://github.com/commonOrm</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/commonOrm</RepositoryUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +23,13 @@
     <PackageReference Include="Dapper" Version="2.0.35" />
     <PackageReference Include="Npgsql" Version="4.1.4" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
