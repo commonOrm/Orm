@@ -13,6 +13,8 @@
     <PackageProjectUrl>https://github.com/commonOrm</PackageProjectUrl>
     <RepositoryUrl>https://github.com/commonOrm</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Version>1.0.1</Version>
+    <Description></Description>
   </PropertyGroup>
 
   <ItemGroup>
