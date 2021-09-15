@@ -33,6 +33,8 @@ public class ModelBase<T> where T : ModelBase<T>, new()
 
     static void init()
     {
+        if (ServiceLocator.Instance == null) throw new MyException("ServiceLocator.Instance is Null");
+
         IConfiguration configuration = ServiceLocator.Instance.GetService(typeof(IConfiguration)) as IConfiguration;
         if (conn == null || configuration["ASPNETCORE_ENVIRONMENT"].ToLower() == "Development".ToLower())
         {

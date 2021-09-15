@@ -12,10 +12,14 @@ namespace common.ConnectionProvider
     public class MssqlConnectionProvider : IConnectionProvider
     {
         private readonly string _connectionString;
+        public bool MssqlEqualOrLessThan2008 = false;
+
+
 
         public MssqlConnectionProvider(IConfiguration configuration)
         {
             _connectionString = configuration["MssqlConnectionProvider"];
+            MssqlEqualOrLessThan2008 = configuration["MssqlConnectionProvider"].ToString2().ToLower() == "true".ToLower();
         }
 
         public IDbConnection GetDbConnection()

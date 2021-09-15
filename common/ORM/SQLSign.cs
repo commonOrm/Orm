@@ -12,7 +12,12 @@ namespace common.ORM
             SQLSign sqlsign = null;
 
             if (conn is MssqlConnectionProvider)
-                sqlsign = new SQLSign_mssql();
+            {
+                if (((MssqlConnectionProvider)conn).MssqlEqualOrLessThan2008)
+                    sqlsign = new SQLSign_mssql_equalOrLessThan2008();
+                else
+                    sqlsign = new SQLSign_mssql();
+            }
             else if (conn is NpgsqlConnectionProvider)
                 sqlsign = new SQLSign_pgsql();
 
@@ -42,12 +47,12 @@ namespace common.ORM
         {
             return @$"SELECT {fields} FROM ""{tablename}"" WHERE {where} ORDER BY {orderby} LIMIT {top}";
         }
-        public override string Create_GetCountSQLEx( string tablename, string where)
+        public override string Create_GetCountSQLEx(string tablename, string where)
         {
             return @$"SELECT COUNT(*) FROM ""{tablename}"" WHERE {where}";
         }
 
-        public override string Create_GetPagerSQLEx( string tablename, string where, string orderby, int PageSize,int PageIndex)
+        public override string Create_GetPagerSQLEx(string tablename, string where, string orderby, int PageSize, int PageIndex)
         {
             return @$"SELECT * FROM ""{tablename}"" 
                             WHERE {where} 
@@ -81,6 +86,36 @@ namespace common.ORM
                             WHERE {where} 
                             ORDER BY {orderby} 
                             OFFSET {PageIndex * PageSize} ROWS FETCH NEXT {PageSize} ROWS ONLY";
+        }
+    }
+
+    public class SQLSign_mssql_equalOrLessThan2008 : SQLSign_mssql
+    {
+        public override string Create_GetListSQLEx(string fields, string tablename, string where, string orderby, int top)
+        { 
+            StringBuilder strSql = new StringBuilder();
+
+            /*SQL2005以上支持 ROW_NUMBER() OVER()  分页方式*/
+            strSql.AppendFormat("SELECT TOP {0} {1} FROM ", top, fields);
+            strSql.AppendFormat("(");
+            strSql.AppendFormat("  SELECT ROW_NUMBER() OVER (ORDER BY {0}) AS RowNumber, {1} FROM {2} where {3}", orderby, fields, tablename, where);
+            strSql.AppendFormat(") as A ");
+            strSql.AppendFormat("WHERE RowNumber > 0");
+
+            return strSql.ToString();
+        }
+        public override string Create_GetPagerSQLEx(string tablename, string where, string orderby, int PageSize, int PageIndex)
+        { 
+            StringBuilder strSql = new StringBuilder();
+
+            /*SQL2005以上支持 ROW_NUMBER() OVER()  分页方式*/
+            strSql.AppendFormat("SELECT TOP {0} {1} FROM ", PageSize, "*");
+            strSql.AppendFormat("(");
+            strSql.AppendFormat("  SELECT ROW_NUMBER() OVER (ORDER BY {0}) AS RowNumber, {1} FROM {2} where {3}", orderby, "*", tablename, where);
+            strSql.AppendFormat(") as A ");
+            strSql.AppendFormat("WHERE RowNumber > ( {0} * {1} )", PageSize, PageIndex);
+
+            return strSql.ToString();
         }
     }
 }
