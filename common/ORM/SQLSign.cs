@@ -94,7 +94,6 @@ namespace common.ORM
         public override string Create_GetListSQLEx(string fields, string tablename, string where, string orderby, int top)
         { 
             StringBuilder strSql = new StringBuilder();
-
             /*SQL2005以上支持 ROW_NUMBER() OVER()  分页方式*/
             strSql.AppendFormat("SELECT TOP {0} {1} FROM ", top, fields);
             strSql.AppendFormat("(");
@@ -107,7 +106,6 @@ namespace common.ORM
         public override string Create_GetPagerSQLEx(string tablename, string where, string orderby, int PageSize, int PageIndex)
         { 
             StringBuilder strSql = new StringBuilder();
-
             /*SQL2005以上支持 ROW_NUMBER() OVER()  分页方式*/
             strSql.AppendFormat("SELECT TOP {0} {1} FROM ", PageSize, "*");
             strSql.AppendFormat("(");
