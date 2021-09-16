@@ -11,6 +11,7 @@ using System.Data;
 using common.ConnectionProvider;
 using common.ORM;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 public static class ServiceLocator
 {
@@ -33,10 +34,11 @@ public class ModelBase<T> where T : ModelBase<T>, new()
 
     static void init()
     {
-        if (ServiceLocator.Instance == null) throw new MyException("ServiceLocator.Instance is Null");
+        //ILogger<ModelBase<T>> logger = ServiceLocator.Instance.GetService(typeof(ILogger<ModelBase<T>>)) as ILogger<ModelBase<T>>;
 
-        IConfiguration configuration = ServiceLocator.Instance.GetService(typeof(IConfiguration)) as IConfiguration;
-        if (conn == null || configuration["ASPNETCORE_ENVIRONMENT"].ToLower() == "Development".ToLower())
+        if (ServiceLocator.Instance == null) throw new MyException("ServiceLocator.Instance is Null"); 
+        
+        if (conn == null )
         {
             if (ServiceLocator.Instance == null) throw new MyException("ServiceLocator.Instance is Null");
             conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
