@@ -21,7 +21,7 @@ namespace commonXunit
         public async Task<bool> _init()
         {
             await models.Product.DeleteWhere(t => t.id != 0);
-            var pro = new models.Product() { Title = "²âÊÔ1", Price = 123, Desc = "ÃèÊö1" };
+            var pro = new models.Product() { Title = "æµ‹è¯•1", Price = 123, Desc = "æè¿°1" };
             return (await pro.Add()).ToInt32() > 0;
         }
 
@@ -35,14 +35,14 @@ namespace commonXunit
         {
             await _init();
 
-            Assert.True(await models.Product.Exists(t => t.Title == "²âÊÔ1"));
+            Assert.True(await models.Product.Exists(t => t.Title == "æµ‹è¯•1"));
         }
         [Fact]
         public async Task Update()
         {
             await _init();
 
-            var newTitle = "²âÊÔ1,update";
+            var newTitle = "æµ‹è¯•1,update";
             var model = await models.Product.GetModelWhere(t => t.id != 0);
             model.Title = newTitle;
             Assert.True(await model.Update());
@@ -54,7 +54,7 @@ namespace commonXunit
         {
             await _init();
 
-            var newTitle = "²âÊÔ1,update";
+            var newTitle = "æµ‹è¯•1,update";
             Assert.True(await models.Product.UpdateWhere(t => t.Title == newTitle, t => t.id != 0));
             var model = await models.Product.GetModelWhere(t => t.id != 0);
             Assert.Equal(newTitle, model.Title);
@@ -72,24 +72,24 @@ namespace commonXunit
         {
             await _init();
 
-            Assert.True(await models.Product.DeleteWhere(t => t.Title == "²âÊÔ1"));
+            Assert.True(await models.Product.DeleteWhere(t => t.Title == "æµ‹è¯•1"));
         }
         [Fact]
         public async Task GetModel()
         {
             await _init();
 
-            var model = await models.Product.GetModelWhere(t => t.Title == "²âÊÔ1");
+            var model = await models.Product.GetModelWhere(t => t.Title == "æµ‹è¯•1");
             var model2 = await models.Product.GetModel(model.id);
-            Assert.Equal("²âÊÔ1", model2.Title);
+            Assert.Equal("æµ‹è¯•1", model2.Title);
         }
         [Fact]
         public async Task GetModelWhere()
         {
             await _init();
 
-            var model = await models.Product.GetModelWhere(t => t.Title == "²âÊÔ1");
-            Assert.Equal("²âÊÔ1", model.Title);
+            var model = await models.Product.GetModelWhere(t => t.Title == "æµ‹è¯•1");
+            Assert.Equal("æµ‹è¯•1", model.Title);
         }
 
         [Fact]
@@ -97,8 +97,8 @@ namespace commonXunit
         {
             await _init();
 
-            var modelList = await models.Product.GetModelList(t => t.Title == "²âÊÔ1").GetList();
-            Assert.Equal("²âÊÔ1", modelList[0].Title);
+            var modelList = await models.Product.GetModelList(t => t.Title == "æµ‹è¯•1").GetList();
+            Assert.Equal("æµ‹è¯•1", modelList[0].Title);
         }
 
 
@@ -107,7 +107,7 @@ namespace commonXunit
         {
             await _init();
 
-            var count = await models.Product.GetModelList(t => t.Title == "²âÊÔ1").GetCount();
+            var count = await models.Product.GetModelList(t => t.Title == "æµ‹è¯•1").GetCount();
             Assert.True(count == 1);
         }
 
@@ -117,7 +117,7 @@ namespace commonXunit
             await _init();
 
             var dt = await models.Product.GetFieldList(t => t.Title.lb_ColumeName() && t.Price.lb_ColumeName(), t => t.id != 0);
-            Assert.Equal("²âÊÔ1", dt.Rows[0][0].ToString());
+            Assert.Equal("æµ‹è¯•1", dt.Rows[0][0].ToString());
             Assert.Equal(123, dt.Rows[0]["Price"].ToDouble());
         }
 
@@ -129,7 +129,7 @@ namespace commonXunit
             var pager = models.Product.Pager(t => t.id != 0, 0, 20);
             var dataList = await pager.GetDataList();
 
-            Assert.Equal("²âÊÔ1", dataList[0].Title.ToString());
+            Assert.Equal("æµ‹è¯•1", dataList[0].Title.ToString());
         }
 
     }
