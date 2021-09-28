@@ -1,4 +1,5 @@
-﻿using common.ORM.LambdaToSQL;
+﻿using common.ORM;
+using common.ORM.LambdaToSQL;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -175,7 +176,7 @@ public static class LambdaToSQLFactory
     /// <param name="obj"></param>
     /// <param name="array"></param>
     /// <returns></returns>
-    public static bool lb_In(this int? obj, int?[] array)
+    public static bool lb_In(this int obj, int[] array)
     {
         return true;
     }
@@ -186,7 +187,7 @@ public static class LambdaToSQLFactory
     /// <param name="obj"></param>
     /// <param name="array"></param>
     /// <returns></returns>
-    public static bool lb_NotIn(this int? obj, int?[] array)
+    public static bool lb_NotIn(this int obj, int[] array)
     {
         return true;
     }
@@ -354,10 +355,10 @@ public static class LambdaToSQLFactory
 
     #endregion Lambda扩展静态方法
 
-    public static LambdaToSQLPlus Get<T>(SQLSort sqlsort, Expression<Func<T, bool>> func, int? sign = null)
+    public static LambdaToSQLPlus Get<T>(SQLSort sqlsort, Expression<Func<T, bool>> func, SQLSign sqlsign, int? sign = null)
         where T : ModelBase<T>, new()
     {
-        return new LambdaToSQLPlus(sqlsort, func, sign);
+        return new LambdaToSQLPlus(sqlsort, func, sqlsign, sign);
     }
 
     //public static LambdaToSQLPlus Get<T, T2>(SQLSort sqlsort, Expression<Func<T, T2, bool>> func, int? sign = null)

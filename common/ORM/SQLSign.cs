@@ -29,6 +29,9 @@ namespace common.ORM
         public abstract string Create_GetListSQLEx(string fields, string tablename, string where, string orderby, int top);
         public abstract string Create_GetCountSQLEx(string tablename, string where);
         public abstract string Create_GetPagerSQLEx(string tablename, string where, string orderby, int PageSize, int PageIndex);
+
+        public abstract string Create_GetInSQLEx();
+        public abstract string Create_GetNotInSQLEx();
     }
 
     public class SQLSign_pgsql : SQLSign
@@ -59,6 +62,14 @@ namespace common.ORM
                             ORDER BY {orderby} 
                             LIMIT {PageSize} OFFSET {PageIndex * PageSize}";
         }
+        public override string Create_GetInSQLEx()
+        {
+            return " \"{0}\" in (select unnest({1})) ";
+        }
+        public override string Create_GetNotInSQLEx()
+        {
+            return " \"{0}\" not in (select unnest({1})) ";
+        }
     }
 
     public class SQLSign_mssql : SQLSign
@@ -86,6 +97,14 @@ namespace common.ORM
                             WHERE {where} 
                             ORDER BY {orderby} 
                             OFFSET {PageIndex * PageSize} ROWS FETCH NEXT {PageSize} ROWS ONLY";
+        }
+        public override string Create_GetInSQLEx()
+        {
+            return " \"{0}\" in ({1}) ";
+        }
+        public override string Create_GetNotInSQLEx()
+        {
+            return " \"{0}\" not in ({1}) ";
         }
     }
 

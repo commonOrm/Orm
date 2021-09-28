@@ -13,6 +13,7 @@ namespace common.ORM.LambdaToSQL
     public class LambdaToSQLPlus
     {
         private int? sign;
+        private SQLSign sqlsign { get; set; }
         private SQLSort sqlsort { get; set; }
         private LambdaExpression func { get; set; }
         private int ColumnPrefix { get; set; }//0：自动判断（单表默认不加，多表默认加t模式）   1：加入 t.  2：加入 表名.
@@ -24,8 +25,9 @@ namespace common.ORM.LambdaToSQL
         public SqlParameter[] Lambda_SPArr = new SqlParameter[] { };
         ////////////////////////////////////////////////////////////////////////////////
 
-        public LambdaToSQLPlus(SQLSort _sqlsort, LambdaExpression _func, int? _sign)
+        public LambdaToSQLPlus(SQLSort _sqlsort, LambdaExpression _func, SQLSign sqlsign, int? _sign)
         {
+            this.sqlsign = sqlsign;
             this.sign = _sign;
             this.sqlsort = _sqlsort;
             switch (this.sqlsort)
@@ -272,10 +274,23 @@ namespace common.ORM.LambdaToSQL
                     column.FormatString = " \"{0}\" is not null and {0} <> '' ";
                 else
                     column.FormatString = " 1=1 ";
+            }
 
+            if (MethodName == "lb_In")
+            {
+                column.Value = (int[])GetColumnValue(mce.Arguments[1]);
+                column.FormatString = sqlsign.Create_GetInSQLEx();
+            }
+            else if (MethodName == "lb_NotIn")
+            {
+                column.Value = (int[])GetColumnValue(mce.Arguments[1]);
+                column.FormatString = sqlsign.Create_GetNotInSQLEx();
             }
 
             #endregion
+
+            if (string.IsNullOrWhiteSpace(column.FormatString))
+                throw new Exception("FormatString Is NullOrWhiteSpace");
 
             return column;
         }
@@ -538,6 +553,8 @@ namespace common.ORM.LambdaToSQL
                     case "lb_IsNotNullAndEmptyAndDo":
                     case "lb_IsNotNullAndZeroAndDo":
                     case "lb_IsNotFalseAndEqual":
+                    case "lb_In":
+                    case "lb_NotIn":
                         SQL = string.Format(_Lambda_Column.FormatString, ColumnName, ColumnNameParameter); break;
                     case "lb_CheckNull":
                         SQL = string.Format(_Lambda_Column.FormatString, ColumnName); break;

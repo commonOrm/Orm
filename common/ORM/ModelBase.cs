@@ -36,9 +36,9 @@ public class ModelBase<T> where T : ModelBase<T>, new()
     {
         //ILogger<ModelBase<T>> logger = ServiceLocator.Instance.GetService(typeof(ILogger<ModelBase<T>>)) as ILogger<ModelBase<T>>;
 
-        if (ServiceLocator.Instance == null) throw new MyException("ServiceLocator.Instance is Null"); 
-        
-        if (conn == null )
+        if (ServiceLocator.Instance == null) throw new MyException("ServiceLocator.Instance is Null");
+
+        if (conn == null)
         {
             if (ServiceLocator.Instance == null) throw new MyException("ServiceLocator.Instance is Null");
             conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
@@ -225,8 +225,8 @@ public class ModelBase<T> where T : ModelBase<T>, new()
     }
     public static async Task<bool> UpdateWhere(Expression<Func<T, bool>> set, Expression<Func<T, bool>> where, SqlTranExtensions STE = null)
     {
-        var setResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, set, 5000);
-        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where);
+        var setResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, set, sqlsign, 5000);
+        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
         var param = new List<SqlParameter>();
         param.AddRange(setResult.Lambda_SPArr);
         param.AddRange(whereResult.Lambda_SPArr);
@@ -282,7 +282,7 @@ public class ModelBase<T> where T : ModelBase<T>, new()
     }
     public static async Task<bool> DeleteWhere(Expression<Func<T, bool>> where, SqlTranExtensions STE = null)
     {
-        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where);
+        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
         return await DeleteWhere(whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(whereResult.Lambda_SPArr), STE);
     }
 
@@ -319,7 +319,7 @@ public class ModelBase<T> where T : ModelBase<T>, new()
     }
     public static async Task<T> GetModelWhere(Expression<Func<T, bool>> where)
     {
-        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where);
+        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
         return await GetModelWhere(whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(whereResult.Lambda_SPArr));
     }
     /// <summary>
@@ -340,7 +340,7 @@ public class ModelBase<T> where T : ModelBase<T>, new()
     }
     public static async Task<bool> Exists(Expression<Func<T, bool>> where)
     {
-        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where);
+        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
         return await Exists(whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(whereResult.Lambda_SPArr));
     }
     /// <summary>
@@ -361,8 +361,8 @@ public class ModelBase<T> where T : ModelBase<T>, new()
     }
     public static List2<T> GetModelList(Expression<Func<T, bool>> where, int top = int.MaxValue, Expression<Func<T, bool>> orderby = null)
     {
-        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where);
-        var orderbyResult = orderby == null ? null : LambdaToSQLFactory.Get<T>(SQLSort.SQLOrder, orderby);
+        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
+        var orderbyResult = orderby == null ? null : LambdaToSQLFactory.Get<T>(SQLSort.SQLOrder, orderby, sqlsign);
         return GetModelList(whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(whereResult.Lambda_SPArr), top, orderby == null ? null : orderbyResult.Lambda_Sql);
     }
     public static async Task<DataTable> GetFieldList(string fields, string where, object param, int top = int.MaxValue, string orderby = null)
@@ -388,9 +388,9 @@ public class ModelBase<T> where T : ModelBase<T>, new()
     }
     public static async Task<DataTable> GetFieldList(Expression<Func<T, bool>> fields, Expression<Func<T, bool>> where, int top = int.MaxValue, Expression<Func<T, bool>> orderby = null)
     {
-        var fieldsResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLFields, fields);
-        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where);
-        var orderbyResult = orderby == null ? null : LambdaToSQLFactory.Get<T>(SQLSort.SQLOrder, orderby);
+        var fieldsResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLFields, fields, sqlsign);
+        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
+        var orderbyResult = orderby == null ? null : LambdaToSQLFactory.Get<T>(SQLSort.SQLOrder, orderby, sqlsign);
         return await GetFieldList(fieldsResult.Lambda_Sql, whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(whereResult.Lambda_SPArr), top, orderby == null ? null : orderbyResult.Lambda_Sql);
     }
 
@@ -409,8 +409,8 @@ public class ModelBase<T> where T : ModelBase<T>, new()
     }
     public static PagerEx<T> Pager(Expression<Func<T, bool>> where, int pageindex, int pagesize, Expression<Func<T, bool>> orderby = null)
     {
-        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where);
-        var orderbyResult = orderby == null ? null : LambdaToSQLFactory.Get<T>(SQLSort.SQLOrder, orderby);
+        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
+        var orderbyResult = orderby == null ? null : LambdaToSQLFactory.Get<T>(SQLSort.SQLOrder, orderby, sqlsign);
         return Pager(whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(whereResult.Lambda_SPArr), pageindex, pagesize, orderby == null ? null : orderbyResult.Lambda_Sql);
     }
     /// <summary>
@@ -425,7 +425,7 @@ public class ModelBase<T> where T : ModelBase<T>, new()
     }
     public static PagerEx<T> Pager(Expression<Func<T, bool>> where, int pageindex, int pagesize, string sort, SortBy order)
     {
-        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where);
+        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
         string orderby = string.IsNullOrWhiteSpace(sort) ? null : @$"""{sort}"" {order}";
 
         return Pager(whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(whereResult.Lambda_SPArr), pageindex, pagesize, orderby);

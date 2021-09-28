@@ -18,11 +18,19 @@ namespace commonXunit
 
         }
 
+        public async Task<int> _initReturnId()
+        {
+            await models.Product.DeleteWhere(t => t.id != 0);
+            var pro = new models.Product() { Title = "测试1", Price = 123, Desc = "描述1" };
+            var id = (await pro.Add()).ToInt32();
+            return id;
+        }
         public async Task<bool> _init()
         {
             await models.Product.DeleteWhere(t => t.id != 0);
             var pro = new models.Product() { Title = "测试1", Price = 123, Desc = "描述1" };
-            return (await pro.Add()).ToInt32() > 0;
+            var id = (await pro.Add()).ToInt32();
+            return id > 0;
         }
 
         [Fact]
@@ -132,6 +140,24 @@ namespace commonXunit
             Assert.Equal("测试1", dataList[0].Title.ToString());
         }
 
+        [Fact]
+        public async Task lambda_In()
+        {
+            var id = await _initReturnId();
+            var ids = new List<int>() { id };
+            var list = await models.Product.GetModelList(t => t.id.lb_In(ids.ToArray())).GetList();
+
+            Assert.Equal("测试1", list[0].Title.ToString());
+        }
+        [Fact]
+        public async Task lambda_NotIn()
+        {
+            var id = await _initReturnId();
+            var ids = new List<int>() { id };
+            var list = await models.Product.GetModelList(t => t.id.lb_NotIn(ids.ToArray())).GetList();
+
+            Assert.True(list.Count == 0);
+        }
     }
 
     public class UnitTest_Postgresql : UnitTestAbc
