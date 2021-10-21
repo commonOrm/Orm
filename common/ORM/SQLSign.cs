@@ -24,11 +24,13 @@ namespace common.ORM
             return sqlsign;
         }
 
+        public abstract string Create_TableNameEx(string tablename);
         public abstract string Create_ColumnEx(string column);
         public abstract string Create_InsertIntoSQLEx(string tablename, string columns, string column_args, string primarykeyname);
         public abstract string Create_GetListSQLEx(string fields, string tablename, string where, string orderby, int top);
         public abstract string Create_GetCountSQLEx(string tablename, string where);
         public abstract string Create_GetPagerSQLEx(string tablename, string where, string orderby, int PageSize, int PageIndex);
+        public abstract string Create_GetMultiplePagerSQLEx(int pagesize, int pageindex);
 
         public abstract string Create_GetInSQLEx();
         public abstract string Create_GetNotInSQLEx();
@@ -36,8 +38,15 @@ namespace common.ORM
 
     public class SQLSign_pgsql : SQLSign
     {
+        public override string Create_TableNameEx(string tablename)
+        {
+            return "\"" + tablename + "\"";
+        }
         public override string Create_ColumnEx(string column)
         {
+            int pointIndex = column.IndexOf(".");
+            if (pointIndex > 0)
+                return column.Substring(0, pointIndex + 1) + "\"" + column.Substring(pointIndex + 1) + "\"";
             return "\"" + column + "\"";
         }
 
@@ -62,6 +71,10 @@ namespace common.ORM
                             ORDER BY {orderby} 
                             LIMIT {PageSize} OFFSET {PageIndex * PageSize}";
         }
+        public override string Create_GetMultiplePagerSQLEx(int pagesize, int pageindex)
+        {
+            return $@" LIMIT {pagesize} OFFSET {pageindex * pagesize} ";
+        }
         public override string Create_GetInSQLEx()
         {
             return " \"{0}\" in (select unnest({1})) ";
@@ -74,8 +87,15 @@ namespace common.ORM
 
     public class SQLSign_mssql : SQLSign
     {
+        public override string Create_TableNameEx(string tablename)
+        {
+            return "[" + tablename + "]";
+        }
         public override string Create_ColumnEx(string column)
         {
+            int pointIndex = column.IndexOf(".");
+            if (pointIndex > 0)
+                return column.Substring(0, pointIndex + 1) + "[" + column.Substring(pointIndex + 1) + "]";
             return "[" + column + "]";
         }
 
@@ -98,6 +118,10 @@ namespace common.ORM
                             ORDER BY {orderby} 
                             OFFSET {PageIndex * PageSize} ROWS FETCH NEXT {PageSize} ROWS ONLY";
         }
+        public override string Create_GetMultiplePagerSQLEx(int pagesize, int pageindex)
+        {
+            return $@" OFFSET {pageindex * pagesize} ROWS FETCH NEXT {pagesize} ROWS ONLY ";
+        }
         public override string Create_GetInSQLEx()
         {
             return " \"{0}\" in ({1}) ";
@@ -111,7 +135,7 @@ namespace common.ORM
     public class SQLSign_mssql_equalOrLessThan2008 : SQLSign_mssql
     {
         public override string Create_GetListSQLEx(string fields, string tablename, string where, string orderby, int top)
-        { 
+        {
             StringBuilder strSql = new StringBuilder();
             /*SQL2005以上支持 ROW_NUMBER() OVER()  分页方式*/
             strSql.AppendFormat("SELECT TOP {0} {1} FROM ", top, fields);
@@ -123,7 +147,7 @@ namespace common.ORM
             return strSql.ToString();
         }
         public override string Create_GetPagerSQLEx(string tablename, string where, string orderby, int PageSize, int PageIndex)
-        { 
+        {
             StringBuilder strSql = new StringBuilder();
             /*SQL2005以上支持 ROW_NUMBER() OVER()  分页方式*/
             strSql.AppendFormat("SELECT TOP {0} {1} FROM ", PageSize, "*");
@@ -133,6 +157,10 @@ namespace common.ORM
             strSql.AppendFormat("WHERE RowNumber > ( {0} * {1} )", PageSize, PageIndex);
 
             return strSql.ToString();
+        }
+        public override string Create_GetMultiplePagerSQLEx(int PageSize, int PageIndex)
+        {
+            throw new MyException("SQLSign_mssql_equalOrLessThan2008 Create_GetMultiplePagerSQLEx Err");
         }
     }
 }

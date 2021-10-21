@@ -149,6 +149,12 @@ public static class LambdaToSQLFactory
         return true;
     }
 
+    public static bool lb_OrderByColumnAndValue<T>(this T obj, string Column, int Value)
+        where T : ModelBase<T>, new()
+    {
+        return true;
+    }
+
     /// <summary>
     /// Order By Arr 例子:  select * from table1 where id in (183,200) order by charindex(',' + ltrim(id) + ',' , ',183,200,')
     /// </summary>
@@ -361,60 +367,60 @@ public static class LambdaToSQLFactory
         return new LambdaToSQLPlus(sqlsort, func, sqlsign, sign);
     }
 
-    //public static LambdaToSQLPlus Get<T, T2>(SQLSort sqlsort, Expression<Func<T, T2, bool>> func, int? sign = null)
-    //    where T : ModelBase<T>, new()
-    //    where T2 : ModelBase<T2>, new()
-    //{
-    //    return new LambdaToSQLPlus(sqlsort, func, sign);
-    //}
+    public static LambdaToSQLPlus Get<T, T2>(SQLSort sqlsort, Expression<Func<T, T2, bool>> func, SQLSign sqlsign, int? sign = null)
+        where T : ModelBase<T>, new()
+        where T2 : ModelBase<T2>, new()
+    {
+        return new LambdaToSQLPlus(sqlsort, func, sqlsign, sign);
+    }
 
-    //public static LambdaToSQLPlus Get<T, T2, T3>(SQLSort sqlsort, Expression<Func<T, T2, T3, bool>> func, int? sign = null)
-    //    where T : ModelBase<T>, new()
-    //    where T2 : ModelBase<T2>, new()
-    //    where T3 : ModelBase<T3>, new()
-    //{
-    //    return new LambdaToSQLPlus(sqlsort, func, sign);
-    //}
+    public static LambdaToSQLPlus Get<T, T2, T3>(SQLSort sqlsort, Expression<Func<T, T2, T3, bool>> func, SQLSign sqlsign, int? sign = null)
+        where T : ModelBase<T>, new()
+        where T2 : ModelBase<T2>, new()
+        where T3 : ModelBase<T3>, new()
+    {
+        return new LambdaToSQLPlus(sqlsort, func, sqlsign, sign);
+    }
 
-    //public static LambdaToSQLPlus Get<T, T2, T3, T4>(SQLSort sqlsort, Expression<Func<T, T2, T3, T4, bool>> func, int? sign = null)
-    //    where T : ModelBase<T>, new()
-    //    where T2 : ModelBase<T2>, new()
-    //    where T3 : ModelBase<T3>, new()
-    //    where T4 : ModelBase<T4>, new()
-    //{
-    //    return new LambdaToSQLPlus(sqlsort, func, sign);
-    //}
+    public static LambdaToSQLPlus Get<T, T2, T3, T4>(SQLSort sqlsort, Expression<Func<T, T2, T3, T4, bool>> func, SQLSign sqlsign, int? sign = null)
+        where T : ModelBase<T>, new()
+        where T2 : ModelBase<T2>, new()
+        where T3 : ModelBase<T3>, new()
+        where T4 : ModelBase<T4>, new()
+    {
+        return new LambdaToSQLPlus(sqlsort, func, sqlsign, sign);
+    }
 
-    //public static LambdaToSQLPlus Get<T, T2, T3, T4, T5>(SQLSort sqlsort, Expression<Func<T, T2, T3, T4, T5, bool>> func, int? sign = null)
-    //    where T : ModelBase<T>, new()
-    //    where T2 : ModelBase<T2>, new()
-    //    where T3 : ModelBase<T3>, new()
-    //    where T4 : ModelBase<T4>, new()
-    //    where T5 : ModelBase<T5>, new()
-    //{
-    //    return new LambdaToSQLPlus(sqlsort, func, sign);
-    //}
+    public static LambdaToSQLPlus Get<T, T2, T3, T4, T5>(SQLSort sqlsort, Expression<Func<T, T2, T3, T4, T5, bool>> func, SQLSign sqlsign, int? sign = null)
+        where T : ModelBase<T>, new()
+        where T2 : ModelBase<T2>, new()
+        where T3 : ModelBase<T3>, new()
+        where T4 : ModelBase<T4>, new()
+        where T5 : ModelBase<T5>, new()
+    {
+        return new LambdaToSQLPlus(sqlsort, func, sqlsign, sign);
+    }
 
-    //public static LambdaToSQLPlus Get<T, T2, T3, T4, T5, T6>(SQLSort sqlsort, Expression<Func<T, T2, T3, T4, T5, T6, bool>> func, int? sign = null)
-    //    where T : ModelBase<T>, new()
-    //    where T2 : ModelBase<T2>, new()
-    //    where T3 : ModelBase<T3>, new()
-    //    where T4 : ModelBase<T4>, new()
-    //    where T5 : ModelBase<T5>, new()
-    //    where T6 : ModelBase<T6>, new()
-    //{
-    //    return new LambdaToSQLPlus(sqlsort, func, sign);
-    //}
-    //public static LambdaToSQLPlus Get<T, T2, T3, T4, T5, T6, T7>(SQLSort sqlsort, Expression<Func<T, T2, T3, T4, T5, T6, T7, bool>> func, int? sign = null)
-    //    where T : ModelBase<T>, new()
-    //    where T2 : ModelBase<T2>, new()
-    //    where T3 : ModelBase<T3>, new()
-    //    where T4 : ModelBase<T4>, new()
-    //    where T5 : ModelBase<T5>, new()
-    //    where T6 : ModelBase<T6>, new()
-    //    where T7 : ModelBase<T7>, new()
-    //{
-    //    return new LambdaToSQLPlus(sqlsort, func, sign);
-    //}
+    public static LambdaToSQLPlus Get<T, T2, T3, T4, T5, T6>(SQLSort sqlsort, Expression<Func<T, T2, T3, T4, T5, T6, bool>> func, SQLSign sqlsign, int? sign = null)
+        where T : ModelBase<T>, new()
+        where T2 : ModelBase<T2>, new()
+        where T3 : ModelBase<T3>, new()
+        where T4 : ModelBase<T4>, new()
+        where T5 : ModelBase<T5>, new()
+        where T6 : ModelBase<T6>, new()
+    {
+        return new LambdaToSQLPlus(sqlsort, func, sqlsign, sign);
+    }
+    public static LambdaToSQLPlus Get<T, T2, T3, T4, T5, T6, T7>(SQLSort sqlsort, Expression<Func<T, T2, T3, T4, T5, T6, T7, bool>> func, SQLSign sqlsign, int? sign = null)
+        where T : ModelBase<T>, new()
+        where T2 : ModelBase<T2>, new()
+        where T3 : ModelBase<T3>, new()
+        where T4 : ModelBase<T4>, new()
+        where T5 : ModelBase<T5>, new()
+        where T6 : ModelBase<T6>, new()
+        where T7 : ModelBase<T7>, new()
+    {
+        return new LambdaToSQLPlus(sqlsort, func, sqlsign, sign);
+    }
 
 }

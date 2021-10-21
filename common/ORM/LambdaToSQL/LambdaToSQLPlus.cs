@@ -115,12 +115,12 @@ namespace common.ORM.LambdaToSQL
                 {
                     //是一个字段
                     column.Value = GetColumnName(right);
-                    column.FormatString = " \"{0}\" {1} {2} ";
+                    column.FormatString = " {0} {1} {2} ";
                     return column;
                 }
             }
             column.Value = GetColumnValue(right);
-            column.FormatString = " \"{0}\" {1} {2} ";
+            column.FormatString = " {0} {1} {2} ";
             return column;
         }
         private Lambda_Column ExpressionRouter_Method(MethodCallExpression mce)
@@ -133,27 +133,27 @@ namespace common.ORM.LambdaToSQL
 
             if (MethodName == "lb_ColumeName")
             {
-                column.FormatString = " \"{0}\" ";
+                column.FormatString = " {0} ";
             }
             if (MethodName == "lb_Sum")
             {
-                column.FormatString = " Sum【\"{0}\"】 ";
+                column.FormatString = " Sum【{0}】 ";
             }
             if (MethodName == "lb_Avg")
             {
-                column.FormatString = " Avg【\"{0}\"】 ";
+                column.FormatString = " Avg【{0}】 ";
             }
             if (MethodName == "lb_Min")
             {
-                column.FormatString = " Min【\"{0}\"】 ";
+                column.FormatString = " Min【{0}】 ";
             }
             if (MethodName == "lb_Max")
             {
-                column.FormatString = " Max【\"{0}\"】 ";
+                column.FormatString = " Max【{0}】 ";
             }
             if (MethodName == "lb_Distinct")
             {
-                column.FormatString = " Distinct \"{0}\" ";
+                column.FormatString = " Distinct {0} ";
             }
 
             #endregion
@@ -162,11 +162,11 @@ namespace common.ORM.LambdaToSQL
 
             if (MethodName == "lb_Desc")
             {
-                column.FormatString = " \"{0}\" Desc ";
+                column.FormatString = " {0} Desc ";
             }
             if (MethodName == "lb_Asc")
             {
-                column.FormatString = " \"{0}\" Asc ";
+                column.FormatString = " {0} Asc ";
             }
             if (MethodName == "lb_Newid")
             {
@@ -175,8 +175,16 @@ namespace common.ORM.LambdaToSQL
             if (MethodName == "lb_OrderByValue")
             {
                 column.Value = GetColumnValue(mce.Arguments[1]);
-                if (column.Value.ToInt32() == 1) column.FormatString = " \"{0}\" Asc ";
-                else if (column.Value.ToInt32() == 2) column.FormatString = " \"{0}\" Desc ";
+                if (column.Value.ToInt32() == 1) column.FormatString = " {0} Asc ";
+                else if (column.Value.ToInt32() == 2) column.FormatString = " {0} Desc ";
+                else column.FormatString = "*=*";
+            }
+            if (MethodName == "lb_OrderByColumnAndValue")
+            {
+                column.Name = GetColumnValue(mce.Arguments[1]).ToString2();
+                var order_value = GetColumnValue(mce.Arguments[2]);
+                if (order_value.ToInt32() == 1) column.FormatString = " {0} Asc ";
+                else if (order_value.ToInt32() == 2) column.FormatString = " {0} Desc ";
                 else column.FormatString = "*=*";
             }
 
@@ -188,38 +196,38 @@ namespace common.ORM.LambdaToSQL
             {
                 column.Value = GetColumnValue(mce.Arguments[1]);
                 //column.FormatString = string.IsNullOrWhiteSpace(column.Value.ToString2()) ? " 1=1 " : " {0} like '%'+{1}+'%' ";
-                column.FormatString = string.IsNullOrWhiteSpace(column.Value.ToString2()) ? " 1=1 " : " \"{0}\" like concat('%',{1},'%') ";
+                column.FormatString = string.IsNullOrWhiteSpace(column.Value.ToString2()) ? " 1=1 " : " {0} like concat('%',{1},'%') ";
             }
             if (MethodName == "lb_LikeR")
             {
                 column.Value = GetColumnValue(mce.Arguments[1]);
                 //column.FormatString = string.IsNullOrWhiteSpace(column.Value.ToString2()) ? " 1=1 " : " {0} like {1}+'%' ";
-                column.FormatString = string.IsNullOrWhiteSpace(column.Value.ToString2()) ? " 1=1 " : " \"{0}\" like concat({1},'%') ";
+                column.FormatString = string.IsNullOrWhiteSpace(column.Value.ToString2()) ? " 1=1 " : " {0} like concat({1},'%') ";
             }
             if (MethodName == "lb_LikeL")
             {
                 column.Value = GetColumnValue(mce.Arguments[1]);
                 //column.FormatString = string.IsNullOrWhiteSpace(column.Value.ToString2()) ? " 1=1 " : " {0} like '%'+{1} ";
-                column.FormatString = string.IsNullOrWhiteSpace(column.Value.ToString2()) ? " 1=1 " : " \"{0}\" like concat('%',{1}) ";
+                column.FormatString = string.IsNullOrWhiteSpace(column.Value.ToString2()) ? " 1=1 " : " {0} like concat('%',{1}) ";
             }
             if (MethodName == "lb_NotLike")
             {
                 column.Value = GetColumnValue(mce.Arguments[1]);
                 //column.FormatString = string.IsNullOrWhiteSpace(column.Value.ToString2()) ? " 1=1 " : " {0} not like '%'+{1}+'%' ";
-                column.FormatString = string.IsNullOrWhiteSpace(column.Value.ToString2()) ? " 1=1 " : " \"{0}\" not like concat('%',{1},'%') ";
+                column.FormatString = string.IsNullOrWhiteSpace(column.Value.ToString2()) ? " 1=1 " : " {0} not like concat('%',{1},'%') ";
             }
 
             if (MethodName == "lb_Like4")
             {
                 column.Value = GetColumnValue(mce.Arguments[1]);
                 //column.FormatString = string.IsNullOrWhiteSpace(column.Value.ToString2()) ? " 1=1 " : " ','+{0}+',' like '%,'+{1}+',%' ";
-                column.FormatString = string.IsNullOrWhiteSpace(column.Value.ToString2()) ? " 1=1 " : " concat(',' , \"{0}\" , ',') like concat('%,',{1},',%') ";
+                column.FormatString = string.IsNullOrWhiteSpace(column.Value.ToString2()) ? " 1=1 " : " concat(',' , {0} , ',') like concat('%,',{1},',%') ";
             }
             if (MethodName == "lb_Like4ForInt")
             {
                 column.Value = GetColumnValue(mce.Arguments[1]);
                 //column.FormatString = (string.IsNullOrWhiteSpace(column.Value.ToString2()) || column.Value.ToInt32() == 0) ? " 1=1 " : " ','+{0}+',' like '%,'+{1}+',%' ";
-                column.FormatString = (string.IsNullOrWhiteSpace(column.Value.ToString2()) || column.Value.ToInt32() == 0) ? " 1=1 " : " concat(',' , \"{0}\" , ',') like  concat('%,',{1},',%') ";
+                column.FormatString = (string.IsNullOrWhiteSpace(column.Value.ToString2()) || column.Value.ToInt32() == 0) ? " 1=1 " : " concat(',' , {0} , ',') like  concat('%,',{1},',%') ";
             }
             if (MethodName == "lb_LikeF")
             {
@@ -228,50 +236,50 @@ namespace common.ORM.LambdaToSQL
                 string[] arr_value = (string[])value;
                 column.Value = string.Join(",", arr_value);
                 //column.FormatString = arr_value.Length < 1 ? " 1=1 " : " ','+{1}+',' like '%,'+{0}+',%' ";
-                column.FormatString = arr_value.Length < 1 ? " 1=1 " : " concat(',',\"{1}\",',') like concat('%,',{0},',%') ";
+                column.FormatString = arr_value.Length < 1 ? " 1=1 " : " concat(',',{1},',') like concat('%,',{0},',%') ";
             }
 
 
             if (MethodName == "lb_IsNotNullAndEqual")
             {
                 column.Value = GetColumnValue(mce.Arguments[1]);
-                column.FormatString = (column.Value == null) ? " 1=1 " : " \"{0}\" = {1} ";
+                column.FormatString = (column.Value == null) ? " 1=1 " : " {0} = {1} ";
             }
             if (MethodName == "lb_IsNotNullAndDo")
             {
                 column.Value = GetColumnValue(mce.Arguments[1]);
                 string FuHao = GetColumnValue(mce.Arguments[2]).ToString2();
-                column.FormatString = (column.Value == null) ? " 1=1 " : (" \"{0}\" " + FuHao + " {1} ");
+                column.FormatString = (column.Value == null) ? " 1=1 " : (" {0} " + FuHao + " {1} ");
             }
             if (MethodName == "lb_IsNotNullAndEmptyAndDo")
             {
                 column.Value = GetColumnValue(mce.Arguments[1]);
                 string FuHao = GetColumnValue(mce.Arguments[2]).ToString2();
-                column.FormatString = (string.IsNullOrWhiteSpace(column.Value.ToString2())) ? " 1=1 " : (" \"{0}\" " + FuHao + " {1} ");
+                column.FormatString = (string.IsNullOrWhiteSpace(column.Value.ToString2())) ? " 1=1 " : (" {0} " + FuHao + " {1} ");
             }
             if (MethodName == "lb_IsNotNullAndZeroAndDo")
             {
                 column.Value = GetColumnValue(mce.Arguments[1]);
                 string FuHao = GetColumnValue(mce.Arguments[2]).ToString2();
-                column.FormatString = (column.Value.ToInt32() == 0) ? " 1=1 " : (" \"{0}\" " + FuHao + " {1} ");
+                column.FormatString = (column.Value.ToInt32() == 0) ? " 1=1 " : (" {0} " + FuHao + " {1} ");
             }
             if (MethodName == "lb_IsNotFalseAndEqual")
             {
                 column.Value = GetColumnValue(mce.Arguments[1]);
-                column.FormatString = (((bool)column.Value) == false) ? " 1=1 " : (" \"{0}\" = {1} ");
+                column.FormatString = (((bool)column.Value) == false) ? " 1=1 " : (" {0} = {1} ");
             }
 
             if (MethodName == "lb_CheckNull")
             {////0:忽略该条件 1:查询为null数据 2:查询不为null数据 3:查询为null或空数据 4:查询不为null和不为空数据
                 column.Value = GetColumnValue(mce.Arguments[1]);
                 if (column.Value.ToInt32() == 1)
-                    column.FormatString = " \"{0}\" is null ";
+                    column.FormatString = " {0} is null ";
                 else if (column.Value.ToInt32() == 2)
-                    column.FormatString = " \"{0}\" is not null ";
+                    column.FormatString = " {0} is not null ";
                 else if (column.Value.ToInt32() == 3)
-                    column.FormatString = " \"{0}\" is null or {0} = '' ";
+                    column.FormatString = " {0} is null or {0} = '' ";
                 else if (column.Value.ToInt32() == 4)
-                    column.FormatString = " \"{0}\" is not null and {0} <> '' ";
+                    column.FormatString = " {0} is not null and {0} <> '' ";
                 else
                     column.FormatString = " 1=1 ";
             }
@@ -317,6 +325,14 @@ namespace common.ORM.LambdaToSQL
                 //else
                 //    throw new Exception("MemberExpression: LambdaToSQL " + ColumnName + " 数据库类型(SqlDbType)获取失败");
             }
+            else
+            {
+                string TName = exp.ToString2();
+                string TTableName = TAndTableName[TName];
+                string ColumnName = "null";
+                return new Lambda_Column() { TName = TName, TTableName = TTableName, Name = ColumnName };
+            }
+
             throw new Exception("not is MemberExpression");
         }
         /// <summary>
@@ -492,6 +508,7 @@ namespace common.ORM.LambdaToSQL
                     case "lb_Asc":
                     case "lb_Newid":
                     case "lb_OrderByValue":
+                    case "lb_OrderByColumnAndValue":
                         _SP = null; break;
 
                     case "lb_Like":
@@ -586,7 +603,7 @@ namespace common.ORM.LambdaToSQL
                 default: ColumnName = "" + _Lambda_Column.Name + ""; break;//title
 
             }
-            return ColumnName;
+            return sqlsign.Create_ColumnEx(ColumnName);
         }
 
         public object ShowMsg()
