@@ -1,5 +1,7 @@
 ﻿using common.ORM;
 using Dapper;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +9,8 @@ using System.Threading.Tasks;
 
 public class PagerEx<T> where T : ModelBase<T>, new()
 {
+    private ILogger<PagerEx<T>> logger;
+
     private IConnectionProvider conn;
     private SQLSign sqlsign;
     private string tablename;
@@ -21,13 +25,14 @@ public class PagerEx<T> where T : ModelBase<T>, new()
 
     public PagerEx(string tablename, string where, object param, int pageindex, int pagesize, string orderby)
     {
+        this.logger = ServiceLocator.Instance.GetService(typeof(ILogger<PagerEx<T>>)) as ILogger<PagerEx<T>>;
         this.conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
         this.sqlsign = SQLSign.Create(conn);
         this.tablename = tablename;
         this.where = where;
         this.param = param;
         this.PageIndex = Math.Max(0, pageindex);
-        this.PageSize = Math.Max(1, pagesize); ;
+        this.PageSize = Math.Max(1, pagesize);
         this.orderby = orderby;
     }
 
@@ -47,7 +52,15 @@ public class PagerEx<T> where T : ModelBase<T>, new()
 
             //从0开始 【超过页数后返回空即可】
             string sql = sqlsign.Create_GetPagerSQLEx(tablename, where, orderby, PageSize, PageIndex);
-            return connection.QueryAsync<T>(sql, param).Result.ToList();
+            try
+            {
+                return connection.QueryAsync<T>(sql, param).Result.ToList();
+            }
+            catch (Exception ce)
+            {
+                logger.LogError(ce, ce.Message + "#" + sql);
+                throw ce;
+            }
         }
     }
 }
