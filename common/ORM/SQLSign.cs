@@ -77,11 +77,11 @@ namespace common.ORM
         }
         public override string Create_GetInSQLEx()
         {
-            return " \"{0}\" in (select unnest({1})) ";
+            return " {0} in (select unnest({1})) ";
         }
         public override string Create_GetNotInSQLEx()
         {
-            return " \"{0}\" not in (select unnest({1})) ";
+            return " {0} not in (select unnest({1})) ";
         }
     }
 
@@ -124,11 +124,11 @@ namespace common.ORM
         }
         public override string Create_GetInSQLEx()
         {
-            return " \"{0}\" in ({1}) ";
+            return " {0} in ({1}) ";
         }
         public override string Create_GetNotInSQLEx()
         {
-            return " \"{0}\" not in ({1}) ";
+            return " {0} not in ({1}) ";
         }
     }
 
