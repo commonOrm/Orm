@@ -35,6 +35,127 @@ namespace commonXunit.init
         protected abstract Task CreateAllTableAndInit();
     }
 
+    public class sqlsugarclient_postgresql : dbsql
+    {
+        public override void init()
+        {
+            var services = new ServiceCollection();
+            services.AddHttpClient();
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
+            var builder = new ConfigurationBuilder()
+               //.SetBasePath()
+               .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+               .AddJsonFile("appsettings.Development.SqlSugarClient_postgresql.json", optional: false, reloadOnChange: true)
+               .AddEnvironmentVariables();
+            var Configuration = builder.Build();
+            services.AddSingleton<IConfiguration>(Configuration);
+            services.AddScoped<IConnectionProvider, common.ConnectionProvider.SqlSugarClientProvider>();
+            ServiceLocator.Instance = services.BuildServiceProvider();
+            conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
+
+            DropAllTable().Wait();
+            CreateAllTableAndInit().Wait();
+        }
+
+        protected async override Task DropAllTable()
+        {
+            GetAllTable();
+            string[] TableNames = tables.Select(t => t.Name).ToArray();
+
+            StringBuilder output = new StringBuilder();
+            foreach (var tablename in TableNames)
+            {
+                output.AppendLine(string.Format("DROP TABLE IF EXISTS \"{0}\";", tablename.ToLower()));
+                output.AppendLine(string.Format("DROP TABLE IF EXISTS \"{0}\";", tablename));
+            }
+            using (var db = conn.GetSqlSugarClient())
+            {
+                var result1 = await db.Ado.ExecuteCommandAsync(output.ToString());
+            }
+        }
+        protected async override Task CreateAllTableAndInit()
+        {
+            GetAllTable();
+
+            StringBuilder output = new StringBuilder();
+            foreach (var ty in tables)
+            {
+                var tableName = ty.Name;
+                output.AppendLine(string.Format("CREATE TABLE \"{0}\"", tableName));
+                output.AppendLine(string.Format("("));
+                int i = 0;
+                var props = ty.GetProperties();
+                foreach (var prop in props)
+                {
+                    i++;
+                    var propName = prop.Name;
+                    var propType = prop.PropertyType;
+                    bool isKey = prop.GetCustomAttributes(typeof(KeyAttribute), false).Length > 0;
+
+                    var databaseType = ConventType(propType);
+                    if (isKey && propType != typeof(int))
+                        throw new Exception("主键必须是 int 类型");
+
+                    if (isKey)
+                    {
+                        output.AppendLine(string.Format("    \"{0}\" serial NOT NULL,", propName));
+                        output.AppendLine(string.Format("    CONSTRAINT {0}_pkey PRIMARY KEY (\"{1}\"),", tableName, propName));
+                    }
+                    else
+                    {
+                        output.AppendLine(string.Format("    \"{0}\" {1}{2}", propName, databaseType, i == props.Length ? "" : ","));
+                    }
+                }
+                output.AppendLine(string.Format(");"));
+            }
+            string SQL = output.ToString();
+
+            using (var db = conn.GetSqlSugarClient())
+            {
+                var affectedRows = await db.Ado.ExecuteCommandAsync(SQL);
+            }
+        }
+        private string ConventType(Type type)
+        {
+            var result = "";
+            var typeName = type.Name.ToLower();
+
+            if (typeName == "nullable`1" && type.GenericTypeArguments.Length > 0)
+            { typeName = type.GenericTypeArguments[0].Name.ToLower(); }
+
+            System.Diagnostics.Debug.WriteLine("typeName:" + typeName);
+            switch (typeName)
+            {
+                case "int":
+                case "int32":
+                case "int64":
+                    result = "integer";
+                    break;
+                case "double":
+                case "float":
+                case "decimal":
+                    result = "double precision";
+                    break;
+                case "string":
+                    result = "character varying";
+                    break;
+                case "bool":
+                case "boolean":
+                    result = "boolean";
+                    break;
+                case "datetime":
+                    result = "timestamp without time zone";
+                    break;
+                case "guid":
+                    result = "uuid";
+                    break;
+                default:
+                    throw new MyException($"class DatabaseStructure function ConventType：{typeName} do not recognized");
+            }
+            return result;
+        }
+    }
+
     public class postgresql : dbsql
     {
         public override void init()

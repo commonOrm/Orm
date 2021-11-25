@@ -1,4 +1,5 @@
-﻿using common.ORM;
+﻿using common.ConnectionProvider;
+using common.ORM;
 using common.ORM.LambdaToSQL;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,19 @@ public enum SQLSort
 /// </summary>
 public static class LambdaToSQLFactory
 {
+    static IConnectionProvider conn { get; set; }
+    static bool ISSqlSugarClient
+    {
+        get
+        {
+            return conn is SqlSugarClientProvider;
+        }
+    }
+    static LambdaToSQLFactory()
+    {
+        conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
+    }
+
     public static Dictionary<string, object> ConvertToDictionary(SqlParameter[] sqlParameters)
     {
         Dictionary<string, object> result = new Dictionary<string, object>();
@@ -53,6 +67,7 @@ public static class LambdaToSQLFactory
     /// <returns></returns>
     public static bool lb_ColumeName<T>(this T obj)
     {
+        if (ISSqlSugarClient) throw new NotImplementedException();
         return true;
     }
 
@@ -64,6 +79,7 @@ public static class LambdaToSQLFactory
     /// <returns></returns>
     public static bool lb_Sum<T>(this T obj)
     {
+        if (ISSqlSugarClient) throw new NotImplementedException();
         return true;
     }
 
@@ -75,6 +91,7 @@ public static class LambdaToSQLFactory
     /// <returns></returns>
     public static bool lb_Avg<T>(this T obj)
     {
+        if (ISSqlSugarClient) throw new NotImplementedException();
         return true;
     }
 
@@ -86,6 +103,7 @@ public static class LambdaToSQLFactory
     /// <returns></returns>
     public static bool lb_Min<T>(this T obj)
     {
+        if (ISSqlSugarClient) throw new NotImplementedException();
         return true;
     }
 
@@ -97,6 +115,7 @@ public static class LambdaToSQLFactory
     /// <returns></returns>
     public static bool lb_Max<T>(this T obj)
     {
+        if (ISSqlSugarClient) throw new NotImplementedException();
         return true;
     }
 
@@ -108,6 +127,7 @@ public static class LambdaToSQLFactory
     /// <returns></returns>
     public static bool lb_Distinct<T>(this T obj)
     {
+        if (ISSqlSugarClient) throw new NotImplementedException();
         return true;
     }
 

@@ -24,6 +24,7 @@
     <!--Operate Database-->
     <PackageReference Include="Dapper" Version="2.0.35" />
     <PackageReference Include="Npgsql" Version="4.1.4" />
+    <PackageReference Include="SqlSugarCore" Version="5.0.4.1" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
   </ItemGroup>
 

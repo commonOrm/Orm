@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Npgsql;
+using SqlSugar;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -20,6 +21,10 @@ namespace common.ConnectionProvider
         public IDbConnection GetDbConnection()
         {
             return new NpgsqlConnection(_connectionString);
+        }
+        public SqlSugarClient GetSqlSugarClient()
+        {
+            return null;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using common.ORM;
+﻿using common.ConnectionProvider;
+using common.ORM;
 using Dapper;
 using System;
 using System.Collections.Generic;
@@ -39,21 +40,37 @@ public class List2<T> where T : ModelBase<T>, new()
 
     public async Task<List<T>> GetList()
     {
-        using (var connection = conn.GetDbConnection())
-        {
-            var sql = sqlsign.Create_GetListSQLEx(fields, tablename, where, orderby, top);
-            var result = await connection.QueryAsync<T>(sql, param);
-            return result.ToList();
-        }
+        var sql = sqlsign.Create_GetListSQLEx(fields, tablename, where, orderby, top);
+
+        if (conn is SqlSugarClientProvider)
+            using (var db = conn.GetSqlSugarClient())
+            {
+                var result = await db.Ado.SqlQueryAsync<T>(sql, param);
+                return result;
+            }
+        else
+            using (var connection = conn.GetDbConnection())
+            {
+                var result = await connection.QueryAsync<T>(sql, param);
+                return result.ToList();
+            }
     }
 
     public async Task<int> GetCount()
     {
-        using (var connection = conn.GetDbConnection())
-        {
-            var sql = sqlsign.Create_GetCountSQLEx(tablename, where);
-            var result = await connection.ExecuteScalarAsync<int>(sql, param);
-            return result;
-        }
+        var sql = sqlsign.Create_GetCountSQLEx(tablename, where);
+
+        if (conn is SqlSugarClientProvider)
+            using (var db = conn.GetSqlSugarClient())
+            {
+                var result = await db.Ado.GetIntAsync(sql, param);
+                return result;
+            }
+        else
+            using (var connection = conn.GetDbConnection())
+            {
+                var result = await connection.ExecuteScalarAsync<int>(sql, param);
+                return result;
+            }
     }
 }

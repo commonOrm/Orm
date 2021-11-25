@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Npgsql;
+using SqlSugar;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -17,12 +18,16 @@ namespace common.ConnectionProvider
         public MssqlConnectionProvider(IConfiguration configuration)
         {
             MssqlEqualOrLessThan2008 = configuration["MssqlEqualOrLessThan2008"].ToString2().ToLower() == "true".ToLower();
-            _connectionString = configuration["MssqlConnectionProvider"];
+            _connectionString = configuration["MssqlConnectionString"];
         }
 
         public IDbConnection GetDbConnection()
         {
             return new SqlConnection(_connectionString);
+        }
+        public SqlSugarClient GetSqlSugarClient()
+        {
+            return null;
         }
     }
 }
