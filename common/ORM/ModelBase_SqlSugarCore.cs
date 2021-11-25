@@ -35,7 +35,10 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
         else
             using (var db = conn.GetSqlSugarClient())
             {
-                return await db.Insertable(model).ExecuteReturnIdentityAsync();
+               var sql = db.Insertable<T>(model as T).ToSql();
+
+               object key =  await db.Insertable<T>(model as T).ExecuteReturnIdentityAsync();
+               return key;
             }
     }
 

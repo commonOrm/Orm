@@ -37,7 +37,6 @@ public interface IModelBase<T> where T : ModelBase<T>, new()
 public abstract class ModelBaseAbs<T> where T : ModelBase<T>, new()
 {
     public ModelBase<T> model { get; set; }
-
     protected IConnectionProvider conn { get; set; }
     protected SQLSign sqlsign { get; set; }
 

@@ -7,12 +7,13 @@ using Dapper;
 using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using commonXunit.models;
 
 namespace commonXunit.init
 {
     public abstract class dbsql
     {
-        protected IConnectionProvider conn;
+        public IConnectionProvider conn;
         protected List<Type> tables;
 
         public abstract void init();
@@ -50,6 +51,7 @@ namespace commonXunit.init
             var Configuration = builder.Build();
             services.AddSingleton<IConfiguration>(Configuration);
             services.AddScoped<IConnectionProvider, common.ConnectionProvider.SqlSugarClientProvider>();
+            services.AddScoped(typeof(IModelBase<>), typeof(ModelBase_SqlSugarCore<>));
             ServiceLocator.Instance = services.BuildServiceProvider();
             conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
 

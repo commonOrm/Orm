@@ -12,14 +12,19 @@ using common.ConnectionProvider;
 using common.ORM;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SqlSugar;
 
 public static class ServiceLocator
 {
     public static IServiceProvider Instance { get; set; }
 }
+
+
 public class ModelBase<T> where T : ModelBase<T>, new()
 {
+    [SugarColumn(IsIgnore = true)]
     private IModelBase<T> modelBase { get; set; }
+
     public ModelBase()
     {
         //ILogger<ModelBase<T>> logger = ServiceLocator.Instance.GetService(typeof(ILogger<ModelBase<T>>))

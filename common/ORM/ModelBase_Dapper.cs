@@ -15,7 +15,6 @@ using Microsoft.Extensions.Logging;
 
 public class ModelBase_Dapper<T> : ModelBaseAbs<T>, IModelBase<T> where T : ModelBase<T>, new()
 {
-    
 
     public ModelBase_Dapper()
     {

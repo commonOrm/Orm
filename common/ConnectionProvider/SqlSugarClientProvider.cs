@@ -29,16 +29,33 @@ namespace common.ConnectionProvider
         {
             var isNpgsql = !string.IsNullOrWhiteSpace(_npgsqlConnectionString);
 
+            var expMethods = new List<SqlFuncExternal>();
+            expMethods.Add(new SqlFuncExternal()
+            {
+                UniqueMethodName = "MyToString",
+                MethodValue = (expInfo, dbType, expContext) =>
+                {
+                    if (dbType == SqlSugar.DbType.SqlServer)
+                        return string.Format("CAST({0} AS VARCHAR(MAX))", expInfo.Args[0].MemberName);
+                    else
+                        throw new Exception("未实现");
+                }
+            });
+
             var Db = new SqlSugarClient(new ConnectionConfig()
             {
                 ConnectionString = isNpgsql ? _npgsqlConnectionString : _mssqlConnectionString,
                 DbType = isNpgsql ? SqlSugar.DbType.PostgreSQL : SqlSugar.DbType.SqlServer,
-                InitKeyType = InitKeyType.SystemTable,
+                InitKeyType = InitKeyType.Attribute,
                 IsAutoCloseConnection = true,
                 MoreSettings = new ConnMoreSettings()
                 {
                     //数据库存在大写字段的 ，需要把这个设为false ，并且实体和字段名称要一样
                     PgSqlIsAutoToLower = false
+                },
+                ConfigureExternalServices = new ConfigureExternalServices()
+                {
+                    SqlFuncServices = expMethods//set ext method
                 }
             });
 

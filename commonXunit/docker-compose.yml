@@ -13,16 +13,16 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=a123456+
     restart: always
-  test_mssql:
-    image: mcr.microsoft.com/mssql/server:2017-latest
-    container_name: test_mssql
-    ports:
-      - 1433:1433
-    volumes:
-      - /etc/localtime:/etc/localtime
-      - ./initdb:/initdb
-    environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_PID=Express
-      - SA_PASSWORD=a123456+
-    restart: always
+  #test_mssql:
+  #  image: mcr.microsoft.com/mssql/server:2017-latest
+  #  container_name: test_mssql
+  #  ports:
+  #    - 1433:1433
+  #  volumes:
+  #    - /etc/localtime:/etc/localtime
+  #    - ./initdb:/initdb
+  #  environment:
+  #    - ACCEPT_EULA=Y
+  #    - MSSQL_PID=Express
+  #    - SA_PASSWORD=a123456+
+  #  restart: always
