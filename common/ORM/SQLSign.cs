@@ -18,7 +18,7 @@ namespace common.ORM
                 else
                     sqlsign = new SQLSign_mssql();
             }
-            else if (conn is NpgsqlConnectionProvider)
+            else if (conn is NpgsqlConnectionProvider || conn is SqlSugarClientProvider)
                 sqlsign = new SQLSign_pgsql();
 
             return sqlsign;

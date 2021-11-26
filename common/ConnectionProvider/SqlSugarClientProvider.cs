@@ -32,13 +32,18 @@ namespace common.ConnectionProvider
             var expMethods = new List<SqlFuncExternal>();
             expMethods.Add(new SqlFuncExternal()
             {
-                UniqueMethodName = "MyToString",
+                UniqueMethodName = "lb_In",
                 MethodValue = (expInfo, dbType, expContext) =>
                 {
-                    if (dbType == SqlSugar.DbType.SqlServer)
-                        return string.Format("CAST({0} AS VARCHAR(MAX))", expInfo.Args[0].MemberName);
-                    else
-                        throw new Exception("未实现");
+                    return string.Format("{0} in ({1})", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
+                }
+            });
+            expMethods.Add(new SqlFuncExternal()
+            {
+                UniqueMethodName = "lb_NotIn",
+                MethodValue = (expInfo, dbType, expContext) =>
+                {
+                    return string.Format("{0} not in ({1})", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
                 }
             });
 

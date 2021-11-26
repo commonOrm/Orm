@@ -7,6 +7,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations.Schema;
+using SqlSugar;
 
 namespace common.ORM.LambdaToSQL
 {

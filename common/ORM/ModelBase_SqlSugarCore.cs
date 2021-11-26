@@ -19,7 +19,7 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
 
     public ModelBase_SqlSugarCore()
     {
-        
+
     }
 
     /// <summary>
@@ -30,15 +30,13 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
     {
         if (STE != null)
         {
-            return await STE.db.Insertable(model).ExecuteReturnIdentityAsync();
+            return await STE.db.Insertable<T>(model as T).ExecuteReturnIdentityAsync();
         }
         else
             using (var db = conn.GetSqlSugarClient())
             {
-               var sql = db.Insertable<T>(model as T).ToSql();
-
-               object key =  await db.Insertable<T>(model as T).ExecuteReturnIdentityAsync();
-               return key;
+                object key = await db.Insertable<T>(model as T).ExecuteReturnIdentityAsync();
+                return key;
             }
     }
 
@@ -50,13 +48,13 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
     {
         if (STE != null)
         {
-            var result = await STE.db.Updateable(model).ExecuteCommandAsync();
+            var result = await STE.db.Updateable<T>(model as T).ExecuteCommandAsync();
             return result > 0;
         }
         else
             using (var db = conn.GetSqlSugarClient())
             {
-                var result = await db.Updateable(model).ExecuteCommandAsync();
+                var result = await db.Updateable<T>(model as T).ExecuteCommandAsync();
                 return result > 0;
             }
     }
@@ -177,23 +175,7 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
             return await db.Queryable<T>().InSingleAsync(getPrimaryKeyValue());
         }
     }
-    /// <summary>
-    /// 获取一个对象 可能为null
-    /// </summary>
-    /// <param name="where"></param>
-    /// <param name="param"></param>
-    /// <returns></returns>
-    public async Task<T> GetModelWhere(string where, object param)
-    {
-        if (string.IsNullOrWhiteSpace(where))
-            where = "1=1";
 
-        using (var db = conn.GetSqlSugarClient())
-        {
-            var dataList = await db.Queryable<T>().Where(where, param).ToListAsync();
-            return dataList.Count > 0 ? dataList[0] : null;
-        }
-    }
     public async Task<T> GetModelWhere(Expression<Func<T, bool>> where)
     {
         using (var db = conn.GetSqlSugarClient())
@@ -201,23 +183,21 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
             return await db.Queryable<T>().SingleAsync(where);
         }
     }
-    /// <summary>
-    /// 检查是否存在记录
-    /// </summary>
-    /// <param name="where"></param>
-    /// <param name="param"></param>
-    /// <returns></returns>
-    public async Task<bool> Exists(string where, object param)
+    public List2<T> GetModelList(Expression<Func<T, bool>> where, int top = int.MaxValue, Expression<Func<T, bool>> orderby = null)
     {
-        if (string.IsNullOrWhiteSpace(where))
-            where = "1=1";
+        var orderbyResult = orderby == null ? null : LambdaToSQLFactory.Get<T>(SQLSort.SQLOrder, orderby, sqlsign);
+        var orderbyStr = orderbyResult == null ? @$" ""{getPrimaryKeyName()}"" ASC " : orderbyResult.Lambda_Sql;
 
         using (var db = conn.GetSqlSugarClient())
         {
-            var count = await db.Ado.GetIntAsync(@$"SELECT COUNT(1) FROM ""{getTableName()}"" WHERE {where}", param);
-            return count > 0;
+            var sqlParams = db.Queryable<T>().Where(where).ToSql();
+            var sql = sqlParams.Key.Split("WHERE")[1];
+            var param = sqlParams.Value;
+
+            return new List2<T>(conn, getTableName(), sql, param, top, orderbyStr);
         }
     }
+
     public async Task<bool> Exists(Expression<Func<T, bool>> where)
     {
         using (var db = conn.GetSqlSugarClient())
@@ -225,88 +205,47 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
             return await db.Queryable<T>().Where(where).AnyAsync();
         }
     }
-    /// <summary>
-    /// 获取一个对象集合
-    /// </summary>
-    /// <param name="where"></param>
-    /// <param name="param"></param>
-    /// <param name="top"></param>
-    /// <param name="orderby"></param>
-    /// <returns></returns>
-    public List2<T> GetModelList(string where, object param, int top = int.MaxValue, string orderby = null)
-    {
-        if (string.IsNullOrWhiteSpace(where))
-            where = "1=1";
 
-        orderby = orderby ?? @$" ""{getPrimaryKeyName()}"" ASC ";
-        return new List2<T>(conn, getTableName(), where, param, top, orderby);
-    }
-    public List2<T> GetModelList(Expression<Func<T, bool>> where, int top = int.MaxValue, Expression<Func<T, bool>> orderby = null)
-    {
-        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
-        var orderbyResult = orderby == null ? null : LambdaToSQLFactory.Get<T>(SQLSort.SQLOrder, orderby, sqlsign);
-        return GetModelList(whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(whereResult.Lambda_SPArr), top, orderby == null ? null : orderbyResult.Lambda_Sql);
-    }
-    public async Task<DataTable> GetFieldList(string fields, string where, object param, int top = int.MaxValue, string orderby = null)
-    {
-        if (string.IsNullOrWhiteSpace(fields))
-            fields = "*";
-
-        if (string.IsNullOrWhiteSpace(where))
-            where = "1=1";
-
-        orderby = orderby ?? @$" ""{getPrimaryKeyName()}"" ASC ";
-
-        //return new List2<T>(conn, getTableName(), where, param, top, orderby);
-        using (var db = conn.GetSqlSugarClient())
-        {
-            var tablename = getTableName();
-            DataTable table = new DataTable("MyTable");
-            var sql = sqlsign.Create_GetListSQLEx(fields, tablename, where, orderby, top);
-            return await db.Ado.GetDataTableAsync(sql, param);
-        }
-    }
     public async Task<DataTable> GetFieldList(Expression<Func<T, bool>> fields, Expression<Func<T, bool>> where, int top = int.MaxValue, Expression<Func<T, bool>> orderby = null)
     {
         var fieldsResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLFields, fields, sqlsign);
-        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
+        //var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
         var orderbyResult = orderby == null ? null : LambdaToSQLFactory.Get<T>(SQLSort.SQLOrder, orderby, sqlsign);
-        return await GetFieldList(fieldsResult.Lambda_Sql, whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(whereResult.Lambda_SPArr), top, orderby == null ? null : orderbyResult.Lambda_Sql);
+
+        using (var db = conn.GetSqlSugarClient())
+        {
+            return await db.Queryable<T>().Where(where).Select(fieldsResult.Lambda_Sql).OrderByIF(orderbyResult != null, orderbyResult == null ? "" : orderbyResult.Lambda_Sql).ToDataTableAsync();
+        }
     }
 
-    /// <summary>
-    /// 获取分页对象
-    /// </summary>
-    /// <returns></returns>
-    public PagerEx<T> Pager(string where, object param, int pageindex, int pagesize, string orderby = null)
-    {
-        if (string.IsNullOrWhiteSpace(where))
-            where = "1=1";
-
-        orderby = orderby ?? @$" ""{getPrimaryKeyName()}"" ASC ";
-        return new PagerEx<T>(getTableName(), where, param, pageindex, pagesize, orderby);
-    }
     public PagerEx<T> Pager(Expression<Func<T, bool>> where, int pageindex, int pagesize, Expression<Func<T, bool>> orderby = null)
     {
-        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
+        //var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
         var orderbyResult = orderby == null ? null : LambdaToSQLFactory.Get<T>(SQLSort.SQLOrder, orderby, sqlsign);
-        return Pager(whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(whereResult.Lambda_SPArr), pageindex, pagesize, orderby == null ? null : orderbyResult.Lambda_Sql);
-    }
-    /// <summary>
-    /// 获取分页对象
-    /// </summary>
-    /// <returns></returns>
-    public PagerEx<T> Pager(string where, object param, int pageindex, int pagesize, string sort, SortBy order)
-    {
-        string orderby = string.IsNullOrWhiteSpace(sort) ? null : @$"""{sort}"" {order}";
+        var orderbyStr = orderbyResult == null ? @$" ""{getPrimaryKeyName()}"" ASC " : orderbyResult.Lambda_Sql;
 
-        return Pager(where, param, pageindex, pagesize, orderby);
+        using (var db = conn.GetSqlSugarClient())
+        {
+            var sqlParams = db.Queryable<T>().Where(where).ToSql();
+            var sql = sqlParams.Key.Split("WHERE")[1];
+            var param = sqlParams.Value;
+
+            return new PagerEx<T>(getTableName(), sql, param, pageindex, pagesize, orderbyStr);
+        }
     }
+
     public PagerEx<T> Pager(Expression<Func<T, bool>> where, int pageindex, int pagesize, string sort, SortBy order)
     {
-        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
+        //var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
         string orderby = string.IsNullOrWhiteSpace(sort) ? null : @$"""{sort}"" {order}";
 
-        return Pager(whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(whereResult.Lambda_SPArr), pageindex, pagesize, orderby);
+        using (var db = conn.GetSqlSugarClient())
+        {
+            var sqlParams = db.Queryable<T>().Where(where).ToSql();
+            var sql = sqlParams.Key.Split("WHERE")[1];
+            var param = sqlParams.Value;
+
+            return new PagerEx<T>(getTableName(), sql, param, pageindex, pagesize, orderby);
+        }
     }
 }

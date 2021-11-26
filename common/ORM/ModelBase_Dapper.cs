@@ -21,8 +21,10 @@ public class ModelBase_Dapper<T> : ModelBaseAbs<T>, IModelBase<T> where T : Mode
 
     }
 
+
+
     /// <summary>
-    /// æ–°å¢
+    /// ĞÂÔö
     /// </summary>
     /// <returns></returns>
     public async Task<object> Add(SqlTranExtensions STE = null)
@@ -45,7 +47,7 @@ public class ModelBase_Dapper<T> : ModelBaseAbs<T>, IModelBase<T> where T : Mode
     }
 
     /// <summary>
-    /// æ›´æ–°
+    /// ¸üĞÂ
     /// </summary>
     /// <returns></returns>
     public async Task<bool> Update(SqlTranExtensions STE = null)
@@ -68,7 +70,7 @@ public class ModelBase_Dapper<T> : ModelBaseAbs<T>, IModelBase<T> where T : Mode
     }
 
     /// <summary>
-    /// æ›´æ–° æŒ‰æ¡ä»¶ï¼ˆå¤šæ¡ï¼‰
+    /// ¸üĞÂ °´Ìõ¼ş£¨¶àÌõ£©
     /// </summary>
     /// <param name="set"></param>
     /// <param name="where"></param>
@@ -77,7 +79,7 @@ public class ModelBase_Dapper<T> : ModelBaseAbs<T>, IModelBase<T> where T : Mode
     public async Task<bool> UpdateWhere(string set, string where, object param, SqlTranExtensions STE = null)
     {
         if (string.IsNullOrWhiteSpace(where))
-            throw new MyException($"ã€UpdateWhereã€‘ where å‚æ•°ä¸èƒ½ä¸ºç©º");
+            throw new MyException($"¡¾UpdateWhere¡¿ where ²ÎÊı²»ÄÜÎª¿Õ");
 
         var sql = $@"UPDATE ""{getTableName()}"" SET {set} WHERE {where};";
         if (STE != null)
@@ -102,8 +104,9 @@ public class ModelBase_Dapper<T> : ModelBaseAbs<T>, IModelBase<T> where T : Mode
         return await UpdateWhere(setResult.Lambda_Sql.Replace("(", "").Replace(")", "").Replace("AND", ","), whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(param), STE);
     }
 
+
     /// <summary>
-    /// åˆ é™¤
+    /// É¾³ı
     /// </summary>
     /// <returns></returns>
     public async Task<bool> Delete(SqlTranExtensions STE = null)
@@ -126,7 +129,7 @@ public class ModelBase_Dapper<T> : ModelBaseAbs<T>, IModelBase<T> where T : Mode
     }
 
     /// <summary>
-    /// åˆ é™¤ æŒ‰æ¡ä»¶ï¼ˆå¤šæ¡ï¼‰
+    /// É¾³ı °´Ìõ¼ş£¨¶àÌõ£©
     /// </summary>
     /// <param name="where"></param>
     /// <param name="param"></param>
@@ -134,7 +137,7 @@ public class ModelBase_Dapper<T> : ModelBaseAbs<T>, IModelBase<T> where T : Mode
     public async Task<bool> DeleteWhere(string where, object param, SqlTranExtensions STE = null)
     {
         if (string.IsNullOrWhiteSpace(where))
-            throw new MyException($"ã€DeleteWhereã€‘ where å‚æ•°ä¸èƒ½ä¸ºç©º");
+            throw new MyException($"¡¾DeleteWhere¡¿ where ²ÎÊı²»ÄÜÎª¿Õ");
 
         var sql = $@"DELETE FROM ""{getTableName()}"" WHERE {where} ;";
         if (STE != null)
@@ -155,8 +158,10 @@ public class ModelBase_Dapper<T> : ModelBaseAbs<T>, IModelBase<T> where T : Mode
         return await DeleteWhere(whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(whereResult.Lambda_SPArr), STE);
     }
 
+
+
     /// <summary>
-    /// è·å–ä¸€ä¸ªå¯¹è±¡ å¯èƒ½ä¸ºnull
+    /// »ñÈ¡Ò»¸ö¶ÔÏó ¿ÉÄÜÎªnull
     /// </summary>
     /// <param name="PrimaryKeyValue"></param>
     /// <returns></returns>
@@ -170,93 +175,26 @@ public class ModelBase_Dapper<T> : ModelBaseAbs<T>, IModelBase<T> where T : Mode
                         WHERE ""{getPrimaryKeyName()}""=@{getPrimaryKeyName()}", column_vals);
         }
     }
-    /// <summary>
-    /// è·å–ä¸€ä¸ªå¯¹è±¡ å¯èƒ½ä¸ºnull
-    /// </summary>
-    /// <param name="where"></param>
-    /// <param name="param"></param>
-    /// <returns></returns>
-    public async Task<T> GetModelWhere(string where, object param)
-    {
-        if (string.IsNullOrWhiteSpace(where))
-            where = "1=1";
 
-        using (var connection = conn.GetDbConnection())
-        {
-            return await connection.QueryFirstOrDefaultAsync<T>(@$"SELECT * FROM ""{getTableName()}"" WHERE {where}", param);
-        }
-    }
     public async Task<T> GetModelWhere(Expression<Func<T, bool>> where)
     {
         var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
         return await GetModelWhere(whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(whereResult.Lambda_SPArr));
     }
-    /// <summary>
-    /// æ£€æŸ¥æ˜¯å¦å­˜åœ¨è®°å½•
-    /// </summary>
-    /// <param name="where"></param>
-    /// <param name="param"></param>
-    /// <returns></returns>
-    public async Task<bool> Exists(string where, object param)
-    {
-        if (string.IsNullOrWhiteSpace(where))
-            where = "1=1";
 
-        using (var connection = conn.GetDbConnection())
-        {
-            return await connection.ExecuteScalarAsync<bool>(@$"SELECT COUNT(1) FROM ""{getTableName()}"" WHERE {where}", param);
-        }
-    }
-    public async Task<bool> Exists(Expression<Func<T, bool>> where)
-    {
-        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
-        return await Exists(whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(whereResult.Lambda_SPArr));
-    }
-    /// <summary>
-    /// è·å–ä¸€ä¸ªå¯¹è±¡é›†åˆ
-    /// </summary>
-    /// <param name="where"></param>
-    /// <param name="param"></param>
-    /// <param name="top"></param>
-    /// <param name="orderby"></param>
-    /// <returns></returns>
-    public List2<T> GetModelList(string where, object param, int top = int.MaxValue, string orderby = null)
-    {
-        if (string.IsNullOrWhiteSpace(where))
-            where = "1=1";
-
-        orderby = orderby ?? @$" ""{getPrimaryKeyName()}"" ASC ";
-        return new List2<T>(conn, getTableName(), where, param, top, orderby);
-    }
     public List2<T> GetModelList(Expression<Func<T, bool>> where, int top = int.MaxValue, Expression<Func<T, bool>> orderby = null)
     {
         var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
         var orderbyResult = orderby == null ? null : LambdaToSQLFactory.Get<T>(SQLSort.SQLOrder, orderby, sqlsign);
         return GetModelList(whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(whereResult.Lambda_SPArr), top, orderby == null ? null : orderbyResult.Lambda_Sql);
     }
-    public async Task<DataTable> GetFieldList(string fields, string where, object param, int top = int.MaxValue, string orderby = null)
+
+    public async Task<bool> Exists(Expression<Func<T, bool>> where)
     {
-        if (string.IsNullOrWhiteSpace(fields))
-            fields = "*";
-
-        if (string.IsNullOrWhiteSpace(where))
-            where = "1=1";
-
-        orderby = orderby ?? @$" ""{getPrimaryKeyName()}"" ASC ";
-
-        //return new List2<T>(conn, getTableName(), where, param, top, orderby);
-        using (var connection = conn.GetDbConnection())
-        {
-            var tablename = getTableName();
-            DataTable table = new DataTable("MyTable");
-            var sql = sqlsign.Create_GetListSQLEx(fields, tablename, where, orderby, top);
-            using (var reader = await connection.ExecuteReaderAsync(sql, param))
-            {
-                table.Load(reader);
-                return table;
-            }
-        }
+        var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
+        return await Exists(whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(whereResult.Lambda_SPArr));
     }
+
     public async Task<DataTable> GetFieldList(Expression<Func<T, bool>> fields, Expression<Func<T, bool>> where, int top = int.MaxValue, Expression<Func<T, bool>> orderby = null)
     {
         var fieldsResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLFields, fields, sqlsign);
@@ -265,35 +203,13 @@ public class ModelBase_Dapper<T> : ModelBaseAbs<T>, IModelBase<T> where T : Mode
         return await GetFieldList(fieldsResult.Lambda_Sql, whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(whereResult.Lambda_SPArr), top, orderby == null ? null : orderbyResult.Lambda_Sql);
     }
 
-
-    /// <summary>
-    /// è·å–åˆ†é¡µå¯¹è±¡
-    /// </summary>
-    /// <returns></returns>
-    public PagerEx<T> Pager(string where, object param, int pageindex, int pagesize, string orderby = null)
-    {
-        if (string.IsNullOrWhiteSpace(where))
-            where = "1=1";
-
-        orderby = orderby ?? @$" ""{getPrimaryKeyName()}"" ASC ";
-        return new PagerEx<T>(getTableName(), where, param, pageindex, pagesize, orderby);
-    }
     public PagerEx<T> Pager(Expression<Func<T, bool>> where, int pageindex, int pagesize, Expression<Func<T, bool>> orderby = null)
     {
         var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
         var orderbyResult = orderby == null ? null : LambdaToSQLFactory.Get<T>(SQLSort.SQLOrder, orderby, sqlsign);
         return Pager(whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(whereResult.Lambda_SPArr), pageindex, pagesize, orderby == null ? null : orderbyResult.Lambda_Sql);
     }
-    /// <summary>
-    /// è·å–åˆ†é¡µå¯¹è±¡
-    /// </summary>
-    /// <returns></returns>
-    public PagerEx<T> Pager(string where, object param, int pageindex, int pagesize, string sort, SortBy order)
-    {
-        string orderby = string.IsNullOrWhiteSpace(sort) ? null : @$"""{sort}"" {order}";
 
-        return Pager(where, param, pageindex, pagesize, orderby);
-    }
     public PagerEx<T> Pager(Expression<Func<T, bool>> where, int pageindex, int pagesize, string sort, SortBy order)
     {
         var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);

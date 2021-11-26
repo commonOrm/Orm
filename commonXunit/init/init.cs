@@ -173,6 +173,7 @@ namespace commonXunit.init
             var Configuration = builder.Build();
             services.AddSingleton<IConfiguration>(Configuration);
             services.AddScoped<IConnectionProvider, common.ConnectionProvider.NpgsqlConnectionProvider>();
+            services.AddScoped(typeof(IModelBase<>), typeof(ModelBase_Dapper<>));
             ServiceLocator.Instance = services.BuildServiceProvider();
             conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
 
@@ -293,8 +294,8 @@ namespace commonXunit.init
                .AddEnvironmentVariables();
             var Configuration = builder.Build();
             services.AddSingleton<IConfiguration>(Configuration);
-
             services.AddScoped<IConnectionProvider, common.ConnectionProvider.MssqlConnectionProvider>();
+            services.AddScoped(typeof(IModelBase<>), typeof(ModelBase_Dapper<>));
             ServiceLocator.Instance = services.BuildServiceProvider();
             conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
 
