@@ -191,6 +191,7 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
         using (var db = conn.GetSqlSugarClient())
         {
             var sqlParams = db.Queryable<T>().Where(where).ToSql();
+
             var sql = sqlParams.Key.Split("WHERE")[1];
             var param = sqlParams.Value;
 
@@ -209,12 +210,17 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
     public async Task<DataTable> GetFieldList(Expression<Func<T, bool>> fields, Expression<Func<T, bool>> where, int top = int.MaxValue, Expression<Func<T, bool>> orderby = null)
     {
         var fieldsResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLFields, fields, sqlsign);
-        //var whereResult = LambdaToSQLFactory.Get<T>(SQLSort.SQLWhere, where, sqlsign);
         var orderbyResult = orderby == null ? null : LambdaToSQLFactory.Get<T>(SQLSort.SQLOrder, orderby, sqlsign);
+        var orderbyStr = orderbyResult == null ? @$" ""{getPrimaryKeyName()}"" ASC " : orderbyResult.Lambda_Sql;
 
         using (var db = conn.GetSqlSugarClient())
         {
-            return await db.Queryable<T>().Where(where).Select(fieldsResult.Lambda_Sql).OrderByIF(orderbyResult != null, orderbyResult == null ? "" : orderbyResult.Lambda_Sql).ToDataTableAsync();
+            var sqlParams = db.Queryable<T>().Where(where).ToSql();
+
+            var sql = sqlParams.Key.Split("WHERE")[1];
+            var param = sqlParams.Value;
+
+            return await new List2<T>(conn, getTableName(), sql, param, top, orderbyStr, fieldsResult.Lambda_Sql).GetDataTable();
         }
     }
 

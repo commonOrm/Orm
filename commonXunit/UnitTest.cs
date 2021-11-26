@@ -71,7 +71,7 @@ namespace commonXunit
             await _init();
 
             var newTitle = "测试1,update";
-            Assert.True(await models.Product.UpdateWhere(t => t.Title == newTitle, t => t.id != 0));
+            Assert.True(await models.Product.UpdateWhere(t => t.Title == newTitle, t => t.Title.lb_IsNotNullAndEqual("测试1")));
             var model = await models.Product.GetModelWhere(t => t.id != 0);
             Assert.Equal(newTitle, model.Title);
         }
@@ -167,6 +167,26 @@ namespace commonXunit
             var list = await models.Product.GetModelList(t => t.id.lb_NotIn(ids.ToArray())).GetList();
 
             Assert.True(list.Count == 0);
+        }
+        [Fact]
+        public async Task lambda_Like()
+        {
+            await _init();
+
+            var title = "测";
+            var list = await models.Product.GetModelList(t => t.Title.lb_Like(title)).GetList();
+
+            Assert.Equal("测试1", list[0].Title.ToString());
+        }
+        [Fact]
+        public async Task lambda_IsNotNullAndEqual()
+        {
+            await _init();
+
+            string title = null;
+            var list = await models.Product.GetModelList(t => t.Title.lb_IsNotNullAndEqual(title) || t.Title.lb_IsNotNullAndEqual("测试1")).GetList();
+
+            Assert.Equal("测试1", list[0].Title.ToString());
         }
     }
 

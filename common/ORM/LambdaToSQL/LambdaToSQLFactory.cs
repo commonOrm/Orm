@@ -32,19 +32,131 @@ public enum SQLSort
 /// </summary>
 public static class LambdaToSQLFactory
 {
-    static IConnectionProvider conn { get; set; }
-    static bool ISSqlSugarClient
+    public static List<SqlFuncExternal> loadExpMethods()
     {
-        get
+        List<SqlFuncExternal> expMethods = new List<SqlFuncExternal>();
+        expMethods.Add(new SqlFuncExternal()
         {
-            return conn is SqlSugarClientProvider;
-        }
+            UniqueMethodName = "lb_In",
+            MethodValue = (expInfo, dbType, expContext) =>
+            {
+                return string.Format("{0} in ({1})", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
+            }
+        });
+        expMethods.Add(new SqlFuncExternal()
+        {
+            UniqueMethodName = "lb_NotIn",
+            MethodValue = (expInfo, dbType, expContext) =>
+            {
+                return string.Format("{0} not in ({1})", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
+            }
+        });
+        expMethods.Add(new SqlFuncExternal()
+        {
+            UniqueMethodName = "lb_Like",
+            MethodValue = (expInfo, dbType, expContext) =>
+            {
+                return string.Format("{0} like concat('%',{1},'%')", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
+            }
+        });
+        expMethods.Add(new SqlFuncExternal()
+        {
+            UniqueMethodName = "lb_LikeR",
+            MethodValue = (expInfo, dbType, expContext) =>
+            {
+                return string.Format("{0} like concat({1},'%')", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
+            }
+        });
+        expMethods.Add(new SqlFuncExternal()
+        {
+            UniqueMethodName = "lb_LikeL",
+            MethodValue = (expInfo, dbType, expContext) =>
+            {
+                return string.Format("{0} like concat('%',{1})", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
+            }
+        });
+        expMethods.Add(new SqlFuncExternal()
+        {
+            UniqueMethodName = "lb_NotLike",
+            MethodValue = (expInfo, dbType, expContext) =>
+            {
+                return string.Format("{0} not like concat('%',{1},'%')", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
+            }
+        });
+        expMethods.Add(new SqlFuncExternal()
+        {
+            UniqueMethodName = "lb_IsNotNullAndEqual",
+            MethodValue = (expInfo, dbType, expContext) =>
+            {
+                if (expInfo.Args[1].MemberValue != null)
+                    return string.Format("{0}={1}", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
+                else
+                    return "1=1";
+            }
+        });
+        expMethods.Add(new SqlFuncExternal()
+        {
+            UniqueMethodName = "lb_IsNotNullAndDo",
+            MethodValue = (expInfo, dbType, expContext) =>
+            {
+                if (expInfo.Args[1].MemberValue != null)
+                    return string.Format("{0}{2}{1}", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName, expInfo.Args[2].MemberValue);
+                else
+                    return "1=1";
+            }
+        });
+        expMethods.Add(new SqlFuncExternal()
+        {
+            UniqueMethodName = "lb_IsNotNullAndEmptyAndDo",
+            MethodValue = (expInfo, dbType, expContext) =>
+            {
+                if (!string.IsNullOrWhiteSpace(expInfo.Args[1].MemberValue.ToString2()))
+                    return string.Format("{0}{2}{1}", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName, expInfo.Args[2].MemberValue);
+                else
+                    return "1=1";
+            }
+        });
+        expMethods.Add(new SqlFuncExternal()
+        {
+            UniqueMethodName = "lb_IsNotNullAndZeroAndDo",
+            MethodValue = (expInfo, dbType, expContext) =>
+            {
+                if (expInfo.Args[1].MemberValue.ToInt32() != 0)
+                    return string.Format("{0}{2}{1}", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName, expInfo.Args[2].MemberValue);
+                else
+                    return "1=1";
+            }
+        });
+        expMethods.Add(new SqlFuncExternal()
+        {
+            UniqueMethodName = "lb_IsNotFalseAndEqual",
+            MethodValue = (expInfo, dbType, expContext) =>
+            {
+                if ((bool)expInfo.Args[1].MemberValue != false)
+                    return string.Format("{0}={1}", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
+                else
+                    return "1=1";
+            }
+        });
+        expMethods.Add(new SqlFuncExternal()
+        {
+            UniqueMethodName = "lb_CheckNull",
+            MethodValue = (expInfo, dbType, expContext) =>
+            {
+                int Value = expInfo.Args[1].MemberValue.ToInt32();
+                switch (Value)
+                {
+                    //case 0:return "1=1";
+                    case 1: return string.Format("{0} is null", expInfo.Args[0].MemberName);
+                    case 2: return string.Format("{0} is not null", expInfo.Args[0].MemberName);
+                    case 3: return string.Format("({0} is null or {0} = '')", expInfo.Args[0].MemberName);
+                    case 4: return string.Format("({0} is not null and {0} <> '')", expInfo.Args[0].MemberName);
+                    default: return "1=1";
+                }
+            }
+        });
+        return expMethods;
     }
-    static LambdaToSQLFactory()
-    {
-        conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
-    }
-
     public static Dictionary<string, object> ConvertToDictionary(SqlParameter[] sqlParameters)
     {
         Dictionary<string, object> result = new Dictionary<string, object>();
@@ -199,7 +311,7 @@ public static class LambdaToSQLFactory
     /// <param name="array"></param>
     /// <returns></returns>
     public static bool lb_In(this int obj, int[] array)
-    { 
+    {
         return true;
     }
 
@@ -210,7 +322,7 @@ public static class LambdaToSQLFactory
     /// <param name="array"></param>
     /// <returns></returns>
     public static bool lb_NotIn(this int obj, int[] array)
-    { 
+    {
         return true;
     }
 
@@ -222,8 +334,6 @@ public static class LambdaToSQLFactory
     /// <returns></returns>
     public static bool lb_Like4ForInt(this string str, object likeStr)
     {
-        if (ISSqlSugarClient)
-            throw new NotImplementedException();
         return true;
     }
 
@@ -235,8 +345,6 @@ public static class LambdaToSQLFactory
     /// <returns></returns>
     public static bool lb_Like4(this string str, string likeStr)
     {
-        if (ISSqlSugarClient)
-            throw new NotImplementedException();
         return true;
     }
 
@@ -248,8 +356,6 @@ public static class LambdaToSQLFactory
     /// <returns></returns>
     public static bool lb_Like4NotNullAndEmpty(this object str, string likeStr)
     {
-        if (ISSqlSugarClient)
-            throw new NotImplementedException();
         return true;
     }
 
@@ -261,10 +367,6 @@ public static class LambdaToSQLFactory
     /// <returns></returns>
     public static bool lb_Like(this string str, string likeStr)
     {
-        if (ISSqlSugarClient)
-        {
-            return str.Contains(likeStr);
-        }
         return true;
     }
 
@@ -276,10 +378,6 @@ public static class LambdaToSQLFactory
     /// <returns></returns>
     public static bool lb_LikeR(this string str, string likeStr)
     {
-        if (ISSqlSugarClient)
-        {
-            return SqlFunc.StartsWith(str, likeStr);
-        }
         return true;
     }
 
@@ -291,10 +389,6 @@ public static class LambdaToSQLFactory
     /// <returns></returns>
     public static bool lb_LikeL(this string str, string likeStr)
     {
-        if (ISSqlSugarClient)
-        {
-            return SqlFunc.EndsWith(str, likeStr);
-        }
         return true;
     }
 
@@ -306,10 +400,6 @@ public static class LambdaToSQLFactory
     /// <returns></returns>
     public static bool lb_NotLike(this string str, string likeStr)
     {
-        if (ISSqlSugarClient)
-        {
-            return !str.Contains(likeStr);
-        }
         return true;
     }
 
@@ -321,8 +411,6 @@ public static class LambdaToSQLFactory
     /// <returns></returns>
     public static bool lb_LikeF(this string str, string[] likeStr)
     {
-        if (ISSqlSugarClient)
-            throw new NotImplementedException();
         return true;
     }
 
@@ -333,12 +421,8 @@ public static class LambdaToSQLFactory
     /// <param name="obj"></param>o
     /// <param name="Value"></param>
     /// <returns></returns>
-    public static bool lb_IsNotNullAndEqual<T>(this string obj, string Value)
+    public static bool lb_IsNotNullAndEqual<T>(this T obj, string Value)
     {
-        if (ISSqlSugarClient)
-        {
-            return SqlFunc.IIF<bool>(Value == null, 1 == 1, obj == Value);
-        }
         return true;
     }
 
@@ -350,17 +434,6 @@ public static class LambdaToSQLFactory
     /// <returns></returns>
     public static bool lb_CheckNull<T>(this T obj, int Value)
     {
-        if (ISSqlSugarClient)
-        {
-            switch (Value)
-            {
-                case 0: return 1 == 1;
-                case 1: return SqlFunc.EqualsNull(obj, null);
-                case 2: return !SqlFunc.EqualsNull(obj, null);
-                case 3: return (SqlFunc.EqualsNull(obj, null) || SqlFunc.Equals(obj, ""));
-                case 4: return (!SqlFunc.EqualsNull(obj, null) && !SqlFunc.Equals(obj, ""));
-            }
-        }
         return true;
     }
 
@@ -373,16 +446,6 @@ public static class LambdaToSQLFactory
     /// <returns></returns>
     public static bool lb_IsNotNullAndDo(this string obj, object Value, string FuHao)
     {
-        if (ISSqlSugarClient)
-        {
-            if (Value == null) return 1 == 1;
-            switch (FuHao.Trim())
-            {
-                case "=": return SqlFunc.Equals(obj, Value);
-                case "<>": return !SqlFunc.Equals(obj, Value);
-                case "!=": return !SqlFunc.Equals(obj, Value);
-            }
-        }
         return true;
     }
 
@@ -395,16 +458,6 @@ public static class LambdaToSQLFactory
     /// <returns></returns>
     public static bool lb_IsNotNullAndEmptyAndDo(this string obj, string Value, string FuHao)
     {
-        if (ISSqlSugarClient)
-        {
-            if (string.IsNullOrWhiteSpace(Value)) return 1 == 1;
-            switch (FuHao.Trim())
-            {
-                case "=": return SqlFunc.Equals(obj, Value);
-                case "<>": return !SqlFunc.Equals(obj, Value);
-                case "!=": return !SqlFunc.Equals(obj, Value);
-            }
-        }
         return true;
     }
 
@@ -417,20 +470,6 @@ public static class LambdaToSQLFactory
     /// <returns></returns>
     public static bool lb_IsNotNullAndZeroAndDo(this object obj, object Value, string FuHao)
     {
-        if (ISSqlSugarClient)
-        {
-            if (Value == null || Value.ToInt32() == 0) return 1 == 1;
-            switch (FuHao.Trim())
-            {
-                case "=": return SqlFunc.Equals(obj, Value);
-                case "<>": return !SqlFunc.Equals(obj, Value);
-                case "!=": return !SqlFunc.Equals(obj, Value);
-                case "<": return (double)obj < (double)Value;
-                case "<=": return (double)obj <= (double)Value;
-                case ">": return (double)obj >= (double)Value;
-                case ">=": return (double)obj >= (double)Value;
-            }
-        }
         return true;
     }
 
@@ -443,10 +482,6 @@ public static class LambdaToSQLFactory
     /// <returns></returns>
     public static bool lb_IsNotFalseAndEqual<T>(this T obj, bool Value)
     {
-        if (ISSqlSugarClient)
-        {
-            return SqlFunc.IIF<bool>(Value == false, 1 == 1, SqlFunc.Equals(obj, Value));
-        }
         return true;
     }
 

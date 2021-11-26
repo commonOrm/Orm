@@ -27,26 +27,9 @@ namespace common.ConnectionProvider
 
         public SqlSugarClient GetSqlSugarClient()
         {
+            var expMethods = LambdaToSQLFactory.loadExpMethods();
             var isNpgsql = !string.IsNullOrWhiteSpace(_npgsqlConnectionString);
-
-            var expMethods = new List<SqlFuncExternal>();
-            expMethods.Add(new SqlFuncExternal()
-            {
-                UniqueMethodName = "lb_In",
-                MethodValue = (expInfo, dbType, expContext) =>
-                {
-                    return string.Format("{0} in ({1})", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
-                }
-            });
-            expMethods.Add(new SqlFuncExternal()
-            {
-                UniqueMethodName = "lb_NotIn",
-                MethodValue = (expInfo, dbType, expContext) =>
-                {
-                    return string.Format("{0} not in ({1})", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
-                }
-            });
-
+            
             var Db = new SqlSugarClient(new ConnectionConfig()
             {
                 ConnectionString = isNpgsql ? _npgsqlConnectionString : _mssqlConnectionString,
