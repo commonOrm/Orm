@@ -2,6 +2,7 @@
 using common.ORM;
 using common.ORM.LambdaToSQL;
 using Dapper;
+using SqlSugar;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -174,11 +175,7 @@ public abstract class DALBase<TReturn>
             if (conn is SqlSugarClientProvider)
                 using (var db = conn.GetSqlSugarClient())
                 {
-                    var dt = await db.Ado.GetDataTableAsync(SQLCount.ToString(), param);
-                    if (dt.Rows.Count > 0)
-                        _recordcount = dt.Rows[0][0].ToInt32();
-                    else
-                        _recordcount = 0;
+                    _recordcount = await db.Ado.GetIntAsync(SQLCount.ToString(), param.ConverToSugarParameter());
                 }
             else
                 using (var connection = conn.GetDbConnection())
@@ -247,7 +244,7 @@ public abstract class DALBase<TReturn>
         if (conn is SqlSugarClientProvider)
             using (var db = conn.GetSqlSugarClient())
             {
-                var result = await db.Ado.SqlQueryAsync<TReturn>(SQL.ToString(), param);
+                var result = await db.Ado.SqlQueryAsync<TReturn>(SQL.ToString(), param.ConverToSugarParameter());
                 _returnData = result;
             }
         else
@@ -256,6 +253,21 @@ public abstract class DALBase<TReturn>
                 var result = await connection.QueryAsync<TReturn>(SQL.ToString(), param);
                 _returnData = result.ToList();
             }
+    }
+
+    protected void changelambdaToSQLPlusToSqlSugar(LambdaToSQLPlus lambdaToSQLPlus, Func<KeyValuePair<string, List<SugarParameter>>> func)
+    {
+        try
+        {
+            var sqlParams = func();
+            var sql = sqlParams.Key.Split("WHERE")[1];
+            var param = sqlParams.Value.ConverToSqlParameter();
+            lambdaToSQLPlus.Lambda_Sql = sql;
+            lambdaToSQLPlus.Lambda_SPArr = param;
+        }
+        catch
+        {
+        }
     }
 
 }
@@ -338,7 +350,25 @@ public class DAL<T, T2, TReturn> : DALBase<TReturn>
             List<LambdaToSQLPlus> where_SP2 = new List<LambdaToSQLPlus>();
             foreach (var w2 in w)
             {
-                where_SP2.Add(LambdaToSQLFactory.Get<T, T2>(SQLSort.SQLWhere, w2, sqlsign, sign)); sign += 100;
+                var lambdaToSQLPlus = LambdaToSQLFactory.Get<T, T2>(SQLSort.SQLWhere, w2, sqlsign, sign);
+
+
+                changelambdaToSQLPlusToSqlSugar(lambdaToSQLPlus, () =>
+                 {
+                     if (conn is SqlSugarClientProvider)
+                         using (var db = conn.GetSqlSugarClient())
+                         {
+                             return db.Queryable<T, T2>(
+                                     (T, T2) => new JoinQueryInfos(
+                                         JoinType.Left, true
+                                     )
+                                 ).Where(w2).ToSql();
+                         }
+                     throw new Exception("err");
+                 });
+
+                where_SP2.Add(lambdaToSQLPlus);
+                sign += 100;
             }
             where_SP.Add(where_SP2.ToArray());
         }
@@ -453,7 +483,26 @@ public class DAL<T, T2, T3, TReturn> : DALBase<TReturn>
             List<LambdaToSQLPlus> where_SP2 = new List<LambdaToSQLPlus>();
             foreach (var w2 in w)
             {
-                where_SP2.Add(LambdaToSQLFactory.Get<T, T2, T3>(SQLSort.SQLWhere, w2, sqlsign, sign)); sign += 100;
+                var lambdaToSQLPlus = LambdaToSQLFactory.Get<T, T2, T3>(SQLSort.SQLWhere, w2, sqlsign, sign);
+
+
+                changelambdaToSQLPlusToSqlSugar(lambdaToSQLPlus, () =>
+                {
+                    if (conn is SqlSugarClientProvider)
+                        using (var db = conn.GetSqlSugarClient())
+                        {
+                            return db.Queryable<T, T2, T3>(
+                                    (T, T2, T3) => new JoinQueryInfos(
+                                        JoinType.Left, true,
+                                        JoinType.Left, true
+                                    )
+                                ).Where(w2).ToSql();
+                        }
+                    throw new Exception("err");
+                });
+
+                where_SP2.Add(lambdaToSQLPlus);
+                sign += 100;
             }
             where_SP.Add(where_SP2.ToArray());
         }
@@ -559,7 +608,27 @@ public class DAL<T, T2, T3, T4, TReturn> : DALBase<TReturn>
             List<LambdaToSQLPlus> where_SP2 = new List<LambdaToSQLPlus>();
             foreach (var w2 in w)
             {
-                where_SP2.Add(LambdaToSQLFactory.Get<T, T2, T3, T4>(SQLSort.SQLWhere, w2, sqlsign, sign)); sign += 100;
+                var lambdaToSQLPlus = LambdaToSQLFactory.Get<T, T2, T3, T4>(SQLSort.SQLWhere, w2, sqlsign, sign);
+
+
+                changelambdaToSQLPlusToSqlSugar(lambdaToSQLPlus, () =>
+                {
+                    if (conn is SqlSugarClientProvider)
+                        using (var db = conn.GetSqlSugarClient())
+                        {
+                            return db.Queryable<T, T2, T3, T4>(
+                                    (T, T2, T3, T4) => new JoinQueryInfos(
+                                        JoinType.Left, true,
+                                        JoinType.Left, true,
+                                        JoinType.Left, true
+                                    )
+                                ).Where(w2).ToSql();
+                        }
+                    throw new Exception("err");
+                });
+
+                where_SP2.Add(lambdaToSQLPlus);
+                sign += 100;
             }
             where_SP.Add(where_SP2.ToArray());
         }
@@ -672,7 +741,28 @@ public class DAL<T, T2, T3, T4, T5, TReturn> : DALBase<TReturn>
             List<LambdaToSQLPlus> where_SP2 = new List<LambdaToSQLPlus>();
             foreach (var w2 in w)
             {
-                where_SP2.Add(LambdaToSQLFactory.Get<T, T2, T3, T4, T5>(SQLSort.SQLWhere, w2, sqlsign, sign)); sign += 100;
+                var lambdaToSQLPlus = LambdaToSQLFactory.Get<T, T2, T3, T4, T5>(SQLSort.SQLWhere, w2, sqlsign, sign);
+
+
+                changelambdaToSQLPlusToSqlSugar(lambdaToSQLPlus, () =>
+                {
+                    if (conn is SqlSugarClientProvider)
+                        using (var db = conn.GetSqlSugarClient())
+                        {
+                            return db.Queryable<T, T2, T3, T4, T5>(
+                                    (T, T2, T3, T4, T5) => new JoinQueryInfos(
+                                        JoinType.Left, true,
+                                        JoinType.Left, true,
+                                        JoinType.Left, true,
+                                        JoinType.Left, true
+                                    )
+                                ).Where(w2).ToSql();
+                        }
+                    throw new Exception("err");
+                });
+
+                where_SP2.Add(lambdaToSQLPlus);
+                sign += 100;
             }
             where_SP.Add(where_SP2.ToArray());
         }
@@ -788,7 +878,29 @@ public class DAL<T, T2, T3, T4, T5, T6, TReturn> : DALBase<TReturn>
             List<LambdaToSQLPlus> where_SP2 = new List<LambdaToSQLPlus>();
             foreach (var w2 in w)
             {
-                where_SP2.Add(LambdaToSQLFactory.Get<T, T2, T3, T4, T5, T6>(SQLSort.SQLWhere, w2, sqlsign, sign)); sign += 100;
+                var lambdaToSQLPlus = LambdaToSQLFactory.Get<T, T2, T3, T4, T5, T6>(SQLSort.SQLWhere, w2, sqlsign, sign);
+
+
+                changelambdaToSQLPlusToSqlSugar(lambdaToSQLPlus, () =>
+                {
+                    if (conn is SqlSugarClientProvider)
+                        using (var db = conn.GetSqlSugarClient())
+                        {
+                            return db.Queryable<T, T2, T3, T4, T5, T6>(
+                                    (T, T2, T3, T4, T5, T6) => new JoinQueryInfos(
+                                        JoinType.Left, true,
+                                        JoinType.Left, true,
+                                        JoinType.Left, true,
+                                        JoinType.Left, true,
+                                        JoinType.Left, true
+                                    )
+                                ).Where(w2).ToSql();
+                        }
+                    throw new Exception("err");
+                });
+
+                where_SP2.Add(lambdaToSQLPlus);
+                sign += 100;
             }
             where_SP.Add(where_SP2.ToArray());
         }
@@ -903,26 +1015,36 @@ public class DAL<T, T2, T3, T4, T5, T6, T7, TReturn> : DALBase<TReturn>
         LambdaToSQLPlus columns_SP = null;
         if (_columns != null) columns_SP = LambdaToSQLFactory.Get<T, T2, T3, T4, T5, T6, T7>(SQLSort.SQLFields, _columns, sqlsign);
 
-        List<object[]> where_SP = new List<object[]>();
+        List<LambdaToSQLPlus[]> where_SP = new List<LambdaToSQLPlus[]>();
         int sign = 7000;
         foreach (var w in _where)
         {
-            List<object> where_SP2 = new List<object>();
+            List<LambdaToSQLPlus> where_SP2 = new List<LambdaToSQLPlus>();
             foreach (var w2 in w)
             {
+                var lambdaToSQLPlus = LambdaToSQLFactory.Get<T, T2, T3, T4, T5, T6, T7>(SQLSort.SQLWhere, w2, sqlsign, sign);
 
-                var _wSQL = LambdaToSQLFactory.Get<T, T2, T3, T4, T5, T6, T7>(SQLSort.SQLWhere, w2, sqlsign, sign);
 
-                using (var db = conn.GetSqlSugarClient())
+                changelambdaToSQLPlusToSqlSugar(lambdaToSQLPlus, () =>
                 {
-                    var sqlParams = db.Queryable<T, T2, T3, T4, T5, T6, T7>(join).Where(w2).ToSql();
-                    var sql = sqlParams.Key.Split("WHERE")[1];
-                    var param = sqlParams.Value;
-                }
+                    if (conn is SqlSugarClientProvider)
+                        using (var db = conn.GetSqlSugarClient())
+                        {
+                            return db.Queryable<T, T2, T3, T4, T5, T6, T7>(
+                                    (T, T2, T3, T4, T5, T6, T7) => new JoinQueryInfos(
+                                        JoinType.Left, true,
+                                        JoinType.Left, true,
+                                        JoinType.Left, true,
+                                        JoinType.Left, true,
+                                        JoinType.Left, true,
+                                        JoinType.Left, true
+                                    )
+                                ).Where(w2).ToSql();
+                        }
+                    throw new Exception("err");
+                });
 
-                where_SP2.Add(_wSQL);
-                where_SP2.Add(_wSQL);
-
+                where_SP2.Add(lambdaToSQLPlus);
                 sign += 100;
             }
             where_SP.Add(where_SP2.ToArray());

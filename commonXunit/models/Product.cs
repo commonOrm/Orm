@@ -26,4 +26,15 @@ namespace commonXunit.models
         public double Price { get; set; }
         public int Count { get; set; }
     }
+
+    public class ProductDetail2 : ModelBase<ProductDetail2>
+    {
+        [Key]
+        [SugarColumn(IsPrimaryKey = true, IsIdentity = true)]
+        public int id { get; set; }
+        public int ProductID { get; set; }
+        public string ProductName { get; set; }
+        public double Price { get; set; }
+        public int Count { get; set; }
+    }
 }

@@ -34,6 +34,9 @@ namespace commonXunit
                 var proDetail = new models.ProductDetail() { ProductID = id, ProductName = "明细1", Price = 100, Count = 150 };
                 await proDetail.Add(STE);
 
+                var proDetail2 = new models.ProductDetail2() { ProductID = id, ProductName = "明细1", Price = 100, Count = 150 };
+                await proDetail.Add(STE);
+
                 if (await STE.Commit())
                 {
                     return id;
@@ -60,6 +63,9 @@ namespace commonXunit
             var id = (await pro.Add()).ToInt32();
 
             var proDetail = new models.ProductDetail() { ProductID = id, ProductName = "明细1", Price = 100, Count = 150 };
+
+            var proDetail2 = new models.ProductDetail2() { ProductID = id, ProductName = "明细1", Price = 100, Count = 150 };
+
             await proDetail.Add();
 
             return id > 0;
@@ -219,7 +225,7 @@ namespace commonXunit
 
         }
         [Fact]
-        public async Task MultipleTableSelect()
+        public async Task MultipleTableSelect2()
         {
             await _init();
 
@@ -236,8 +242,31 @@ namespace commonXunit
 
             var ReturnData = D.ReturnData;
             var RecordCount = D.RecordCount;
-             
-            Assert.True(RecordCount>0);
+
+            Assert.True(RecordCount > 0);
+        }
+
+        [Fact]
+        public async Task MultipleTableSelect3()
+        {
+            await _init();
+
+            var D = new DAL<Product, ProductDetail, ProductDetail2, MultipleTableSelectResult>(new JoinStyle[] { JoinStyle.LEFT_JOIN, JoinStyle.LEFT_JOIN });
+            D.SetPageSize(20).SetPageIndex(0);
+            D.Columns((t, t2, t3) => t.id.lb_ColumeName()
+                                    && t.Title.lb_ColumeName()
+                                    && t2.ProductName.lb_ColumeName()
+                                    && t3.ProductName.lb_ColumeName()
+                      );
+            D.On((t, t2, t3) => t.id == t2.ProductID, (t, t2, t3) => t.id == t3.ProductID);
+            D.Where((t, t2, t3) => t.id != 0 && t2.ProductName != "abc");
+            D.OrderBy((t, t2, t3) => t.id.lb_Asc() && t2.Price.lb_Asc());
+            await D.GetList();
+
+            var ReturnData = D.ReturnData;
+            var RecordCount = D.RecordCount;
+
+            Assert.True(RecordCount > 0);
         }
     }
 

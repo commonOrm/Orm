@@ -168,6 +168,20 @@ public static class LambdaToSQLFactory
     {
         return ConvertToDictionary(sqlParameters.ToArray());
     }
+    public static SqlParameter[] ConverToSqlParameter(this List<SugarParameter> sugarParameters)
+    {
+        List<SqlParameter> sqlP = new List<SqlParameter>();
+        foreach (var sp in sugarParameters)
+            sqlP.Add(new SqlParameter(sp.ParameterName) { Value = sp.Value });
+        return sqlP.ToArray();
+    }
+    public static SugarParameter[] ConverToSugarParameter(this Dictionary<string, object> sqlParameters)
+    {
+        List<SugarParameter> sqlP = new List<SugarParameter>();
+        foreach (var sp in sqlParameters)
+            sqlP.Add(new SugarParameter(sp.Key,sp.Value));
+        return sqlP.ToArray();
+    }
 
     #region Lambda扩展静态方法
 
