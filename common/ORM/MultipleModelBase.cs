@@ -1,4 +1,5 @@
-﻿using common.ORM;
+﻿using common.ConnectionProvider;
+using common.ORM;
 using common.ORM.LambdaToSQL;
 using Dapper;
 using System;
@@ -170,14 +171,24 @@ public abstract class DALBase<TReturn>
             if (groupby_SP != null)
                 SQLCount = "SELECT COUNT(*) from ( " + SQLCount + " ) tab_2";
 
-            using (var connection = conn.GetDbConnection())
-            {
-                var dr = await connection.ExecuteReaderAsync(SQLCount.ToString(), param);
-                if (dr.Read())
-                    _recordcount = int.Parse(dr[0].ToString());
-                else
-                    _recordcount = 0;
-            }
+            if (conn is SqlSugarClientProvider)
+                using (var db = conn.GetSqlSugarClient())
+                {
+                    var dt = await db.Ado.GetDataTableAsync(SQLCount.ToString(), param);
+                    if (dt.Rows.Count > 0)
+                        _recordcount = dt.Rows[0][0].ToInt32();
+                    else
+                        _recordcount = 0;
+                }
+            else
+                using (var connection = conn.GetDbConnection())
+                {
+                    var dr = await connection.ExecuteReaderAsync(SQLCount.ToString(), param);
+                    if (dr.Read())
+                        _recordcount = int.Parse(dr[0].ToString());
+                    else
+                        _recordcount = 0;
+                }
 
             if ((_recordcount % _pagesize) > 0) { _pagecount = _recordcount / _pagesize + 1; } else { _pagecount = _recordcount / _pagesize; }
             if (_pageindex < 0) { _pageindex = 0; } //【超过页数后返回空即可】
@@ -233,11 +244,18 @@ public abstract class DALBase<TReturn>
                 (orderby_SP == null ? "" : string.Format("ORDER BY {0} ", orderby_SP.Lambda_Sql));
         }
 
-        using (var connection = conn.GetDbConnection())
-        {
-            var result = await connection.QueryAsync<TReturn>(SQL.ToString(), param);
-            _returnData = result.ToList();
-        }
+        if (conn is SqlSugarClientProvider)
+            using (var db = conn.GetSqlSugarClient())
+            {
+                var result = await db.Ado.SqlQueryAsync<TReturn>(SQL.ToString(), param);
+                _returnData = result;
+            }
+        else
+            using (var connection = conn.GetDbConnection())
+            {
+                var result = await connection.QueryAsync<TReturn>(SQL.ToString(), param);
+                _returnData = result.ToList();
+            }
     }
 
 }
@@ -885,14 +903,27 @@ public class DAL<T, T2, T3, T4, T5, T6, T7, TReturn> : DALBase<TReturn>
         LambdaToSQLPlus columns_SP = null;
         if (_columns != null) columns_SP = LambdaToSQLFactory.Get<T, T2, T3, T4, T5, T6, T7>(SQLSort.SQLFields, _columns, sqlsign);
 
-        List<LambdaToSQLPlus[]> where_SP = new List<LambdaToSQLPlus[]>();
+        List<object[]> where_SP = new List<object[]>();
         int sign = 7000;
         foreach (var w in _where)
         {
-            List<LambdaToSQLPlus> where_SP2 = new List<LambdaToSQLPlus>();
+            List<object> where_SP2 = new List<object>();
             foreach (var w2 in w)
             {
-                where_SP2.Add(LambdaToSQLFactory.Get<T, T2, T3, T4, T5, T6, T7>(SQLSort.SQLWhere, w2, sqlsign, sign)); sign += 100;
+
+                var _wSQL = LambdaToSQLFactory.Get<T, T2, T3, T4, T5, T6, T7>(SQLSort.SQLWhere, w2, sqlsign, sign);
+
+                using (var db = conn.GetSqlSugarClient())
+                {
+                    var sqlParams = db.Queryable<T, T2, T3, T4, T5, T6, T7>(join).Where(w2).ToSql();
+                    var sql = sqlParams.Key.Split("WHERE")[1];
+                    var param = sqlParams.Value;
+                }
+
+                where_SP2.Add(_wSQL);
+                where_SP2.Add(_wSQL);
+
+                sign += 100;
             }
             where_SP.Add(where_SP2.ToArray());
         }

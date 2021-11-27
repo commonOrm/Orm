@@ -21,10 +21,30 @@ namespace commonXunit
 
         public async Task<int> _initReturnId()
         {
-            await models.Product.DeleteWhere(t => t.id != 0);
-            var pro = new models.Product() { Title = "测试1", Price = 123, Desc = "描述1" };
-            var id = (await pro.Add()).ToInt32();
-            return id;
+            SqlTranExtensions STE = new SqlTranExtensions();
+
+            int id = 0;
+            try
+            {
+                await models.Product.DeleteWhere(t => t.id != 0);
+                var pro = new models.Product() { Title = "测试1", Price = 123, Desc = "描述1" };
+                id = (await pro.Add(STE)).ToInt32();
+                pro.id = id;
+
+                var proDetail = new models.ProductDetail() { ProductID = id, ProductName = "明细1", Price = 100, Count = 150 };
+                await proDetail.Add(STE);
+
+                if (await STE.Commit())
+                {
+                    return id;
+                }
+            }
+            catch
+            {
+                STE.Rollback();
+            }
+
+            throw new Exception("_initReturnId Err");
         }
         public async Task<bool> _init()
         {
@@ -35,16 +55,21 @@ namespace commonXunit
             //}
 
             await models.Product.DeleteWhere(t => t.id != 0);
-            var pro = new models.Product() { Title = "测试1", Price = 123, Desc = "描述1" };
 
+            var pro = new models.Product() { Title = "测试1", Price = 123, Desc = "描述1" };
             var id = (await pro.Add()).ToInt32();
+
+            var proDetail = new models.ProductDetail() { ProductID = id, ProductName = "明细1", Price = 100, Count = 150 };
+            await proDetail.Add();
+
             return id > 0;
         }
 
         [Fact]
         public async Task Add()
         {
-            Assert.True((await _init()));
+            Assert.True((await _initReturnId()) > 0);
+            //Assert.True((await _init()));
         }
         [Fact]
         public async Task Exists()
@@ -187,6 +212,32 @@ namespace commonXunit
             var list = await models.Product.GetModelList(t => t.Title.lb_IsNotNullAndEqual(title) || t.Title.lb_IsNotNullAndEqual("测试1")).GetList();
 
             Assert.Equal("测试1", list[0].Title.ToString());
+        }
+
+        public class MultipleTableSelectResult
+        {
+
+        }
+        [Fact]
+        public async Task MultipleTableSelect()
+        {
+            await _init();
+
+            var D = new DAL<Product, ProductDetail, MultipleTableSelectResult>(new JoinStyle[] { JoinStyle.LEFT_JOIN });
+            D.SetPageSize(20).SetPageIndex(0);
+            D.Columns((t, t2) => t.id.lb_ColumeName()
+                                    && t.Title.lb_ColumeName()
+                                    && t2.ProductName.lb_ColumeName()
+                      );
+            D.On((t, t2) => t.id == t2.ProductID);
+            D.Where((t, t2) => t.id != 0 && t2.ProductName != "abc");
+            D.OrderBy((t, t2) => t.id.lb_Asc() && t2.Price.lb_Asc());
+            await D.GetList();
+
+            var ReturnData = D.ReturnData;
+            var RecordCount = D.RecordCount;
+             
+            Assert.True(RecordCount>0);
         }
     }
 
