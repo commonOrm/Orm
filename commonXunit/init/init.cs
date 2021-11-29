@@ -50,8 +50,8 @@ namespace commonXunit.init
                .AddEnvironmentVariables();
             var Configuration = builder.Build();
             services.AddSingleton<IConfiguration>(Configuration);
-            services.AddScoped<IConnectionProvider, common.ConnectionProvider.SqlSugarClientProvider>();
-            services.AddScoped(typeof(IModelBase<>), typeof(ModelBase_SqlSugarCore<>));
+            services.AddSingleton<IConnectionProvider, common.ConnectionProvider.SqlSugarClientProvider>();
+            services.AddSingleton(typeof(IModelBase<>), typeof(ModelBase_SqlSugarCore<>));
             ServiceLocator.Instance = services.BuildServiceProvider();
             conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
 
@@ -172,8 +172,8 @@ namespace commonXunit.init
                .AddEnvironmentVariables();
             var Configuration = builder.Build();
             services.AddSingleton<IConfiguration>(Configuration);
-            services.AddScoped<IConnectionProvider, common.ConnectionProvider.NpgsqlConnectionProvider>();
-            services.AddScoped(typeof(IModelBase<>), typeof(ModelBase_Dapper<>));
+            services.AddSingleton<IConnectionProvider, common.ConnectionProvider.NpgsqlConnectionProvider>();
+            services.AddSingleton(typeof(IModelBase<>), typeof(ModelBase_Dapper<>));
             ServiceLocator.Instance = services.BuildServiceProvider();
             conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
 
@@ -294,8 +294,8 @@ namespace commonXunit.init
                .AddEnvironmentVariables();
             var Configuration = builder.Build();
             services.AddSingleton<IConfiguration>(Configuration);
-            services.AddScoped<IConnectionProvider, common.ConnectionProvider.MssqlConnectionProvider>();
-            services.AddScoped(typeof(IModelBase<>), typeof(ModelBase_Dapper<>));
+            services.AddSingleton<IConnectionProvider, common.ConnectionProvider.MssqlConnectionProvider>();
+            services.AddSingleton(typeof(IModelBase<>), typeof(ModelBase_Dapper<>));
             ServiceLocator.Instance = services.BuildServiceProvider();
             conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
 
