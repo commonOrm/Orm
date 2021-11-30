@@ -38,7 +38,8 @@ public class ModelBase<T> where T : ModelBase<T>, new()
 
     static IModelBase<T> getModelBase()
     {
-        return ServiceLocator.Instance.GetService(typeof(IModelBase<T>)) as IModelBase<T>;
+        var a =  ServiceLocator.Instance.GetService(typeof(IModelBase<T>)) as IModelBase<T>;
+        return a;
     }
 
     /// <summary>

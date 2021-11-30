@@ -50,8 +50,10 @@ namespace commonXunit.init
                .AddEnvironmentVariables();
             var Configuration = builder.Build();
             services.AddSingleton<IConfiguration>(Configuration);
+
             services.AddSingleton<IConnectionProvider, common.ConnectionProvider.SqlSugarClientProvider>();
-            services.AddSingleton(typeof(IModelBase<>), typeof(ModelBase_SqlSugarCore<>));
+            services.AddTransient(typeof(IModelBase<>), typeof(ModelBase_SqlSugarCore<>));
+
             ServiceLocator.Instance = services.BuildServiceProvider();
             conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
 
@@ -172,8 +174,10 @@ namespace commonXunit.init
                .AddEnvironmentVariables();
             var Configuration = builder.Build();
             services.AddSingleton<IConfiguration>(Configuration);
+
             services.AddSingleton<IConnectionProvider, common.ConnectionProvider.NpgsqlConnectionProvider>();
-            services.AddSingleton(typeof(IModelBase<>), typeof(ModelBase_Dapper<>));
+            services.AddTransient(typeof(IModelBase<>), typeof(ModelBase_Dapper<>));
+
             ServiceLocator.Instance = services.BuildServiceProvider();
             conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
 
@@ -294,8 +298,10 @@ namespace commonXunit.init
                .AddEnvironmentVariables();
             var Configuration = builder.Build();
             services.AddSingleton<IConfiguration>(Configuration);
+
             services.AddSingleton<IConnectionProvider, common.ConnectionProvider.MssqlConnectionProvider>();
-            services.AddSingleton(typeof(IModelBase<>), typeof(ModelBase_Dapper<>));
+            services.AddTransient(typeof(IModelBase<>), typeof(ModelBase_Dapper<>));
+
             ServiceLocator.Instance = services.BuildServiceProvider();
             conn = ServiceLocator.Instance.GetService(typeof(IConnectionProvider)) as IConnectionProvider;
 
