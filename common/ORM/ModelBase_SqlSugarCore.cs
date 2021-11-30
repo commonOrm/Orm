@@ -172,7 +172,7 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
     {
         using (var db = conn.GetSqlSugarClient())
         {
-            return await db.Queryable<T>().InSingleAsync(getPrimaryKeyValue());
+            return await db.Queryable<T>().InSingleAsync(PrimaryKeyValue);
         }
     }
 
