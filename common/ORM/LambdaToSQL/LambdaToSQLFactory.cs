@@ -458,7 +458,7 @@ public static class LambdaToSQLFactory
     /// <param name="Value"></param>
     /// <param name="FuHao">比较符号</param>
     /// <returns></returns>
-    public static bool lb_IsNotNullAndDo(this string obj, object Value, string FuHao)
+    public static bool lb_IsNotNullAndDo<T>(this T obj, object Value, string FuHao)
     {
         return true;
     }
@@ -482,7 +482,7 @@ public static class LambdaToSQLFactory
     /// <param name="Value"></param>
     /// <param name="FuHao">比较符号</param>
     /// <returns></returns>
-    public static bool lb_IsNotNullAndZeroAndDo(this object obj, object Value, string FuHao)
+    public static bool lb_IsNotNullAndZeroAndDo<T>(this T obj, object Value, string FuHao)
     {
         return true;
     }
