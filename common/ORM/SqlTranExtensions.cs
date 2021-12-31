@@ -86,8 +86,8 @@ public class SqlTranExtensions
                          //都执行成功时提交
                          this.transaction.Commit();
 
-                         var successMsg = "ExecuteSqlTran Success";
-                         Console.WriteLine(successMsg);
+                         //var successMsg = "ExecuteSqlTran Success";
+                         //Console.WriteLine(successMsg);
                          //logger.LogInformation(successMsg);
 
                          this.connection.Close();
@@ -114,8 +114,8 @@ public class SqlTranExtensions
                     //都执行成功时提交
                     this.db.CommitTran();
 
-                    var successMsg = "ExecuteSqlTran Success";
-                    Console.WriteLine(successMsg);
+                    //var successMsg = "ExecuteSqlTran Success";
+                    //Console.WriteLine(successMsg);
                     //logger.LogInformation(successMsg);
 
                     this.db.Close();
