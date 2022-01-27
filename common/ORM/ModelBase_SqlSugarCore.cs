@@ -180,7 +180,7 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
     {
         using (var db = conn.GetSqlSugarClient())
         {
-            return await db.Queryable<T>().SingleAsync(where);
+            return await db.Queryable<T>().Where(where).FirstAsync();
         }
     }
     public List2<T> GetModelList(Expression<Func<T, bool>> where, int top = int.MaxValue, Expression<Func<T, bool>> orderby = null)
