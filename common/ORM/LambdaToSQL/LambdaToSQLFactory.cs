@@ -40,7 +40,7 @@ public static class LambdaToSQLFactory
             UniqueMethodName = "lb_In",
             MethodValue = (expInfo, dbType, expContext) =>
             {
-                return string.Format("{0} in ({1})", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
+                return string.Format(" {0} in ({1}) ", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
             }
         });
         expMethods.Add(new SqlFuncExternal()
@@ -48,7 +48,7 @@ public static class LambdaToSQLFactory
             UniqueMethodName = "lb_NotIn",
             MethodValue = (expInfo, dbType, expContext) =>
             {
-                return string.Format("{0} not in ({1})", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
+                return string.Format(" {0} not in ({1}) ", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
             }
         });
         expMethods.Add(new SqlFuncExternal()
@@ -56,7 +56,7 @@ public static class LambdaToSQLFactory
             UniqueMethodName = "lb_Like",
             MethodValue = (expInfo, dbType, expContext) =>
             {
-                return string.Format("{0} like concat('%',{1},'%')", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
+                return string.Format(" {0} like concat('%',{1},'%') ", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
             }
         });
         expMethods.Add(new SqlFuncExternal()
@@ -64,7 +64,7 @@ public static class LambdaToSQLFactory
             UniqueMethodName = "lb_LikeR",
             MethodValue = (expInfo, dbType, expContext) =>
             {
-                return string.Format("{0} like concat({1},'%')", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
+                return string.Format(" {0} like concat({1},'%') ", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
             }
         });
         expMethods.Add(new SqlFuncExternal()
@@ -72,7 +72,7 @@ public static class LambdaToSQLFactory
             UniqueMethodName = "lb_LikeL",
             MethodValue = (expInfo, dbType, expContext) =>
             {
-                return string.Format("{0} like concat('%',{1})", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
+                return string.Format(" {0} like concat('%',{1}) ", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
             }
         });
         expMethods.Add(new SqlFuncExternal()
@@ -80,7 +80,7 @@ public static class LambdaToSQLFactory
             UniqueMethodName = "lb_NotLike",
             MethodValue = (expInfo, dbType, expContext) =>
             {
-                return string.Format("{0} not like concat('%',{1},'%')", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
+                return string.Format(" {0} not like concat('%',{1},'%') ", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
             }
         });
         expMethods.Add(new SqlFuncExternal()
@@ -89,9 +89,9 @@ public static class LambdaToSQLFactory
             MethodValue = (expInfo, dbType, expContext) =>
             {
                 if (expInfo.Args[1].MemberValue != null)
-                    return string.Format("{0}={1}", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
+                    return string.Format(" {0}={1} ", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
                 else
-                    return "1=1";
+                    return " 1=1 ";
             }
         });
         expMethods.Add(new SqlFuncExternal()
@@ -100,9 +100,9 @@ public static class LambdaToSQLFactory
             MethodValue = (expInfo, dbType, expContext) =>
             {
                 if (expInfo.Args[1].MemberValue != null)
-                    return string.Format("{0}{2}{1}", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName, expInfo.Args[2].MemberValue);
+                    return string.Format(" {0}{2}{1} ", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName, expInfo.Args[2].MemberValue);
                 else
-                    return "1=1";
+                    return " 1=1 ";
             }
         });
         expMethods.Add(new SqlFuncExternal()
@@ -111,9 +111,9 @@ public static class LambdaToSQLFactory
             MethodValue = (expInfo, dbType, expContext) =>
             {
                 if (!string.IsNullOrWhiteSpace(expInfo.Args[1].MemberValue.ToString2()))
-                    return string.Format("{0}{2}{1}", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName, expInfo.Args[2].MemberValue);
+                    return string.Format(" {0}{2}{1} ", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName, expInfo.Args[2].MemberValue);
                 else
-                    return "1=1";
+                    return " 1=1 ";
             }
         });
         expMethods.Add(new SqlFuncExternal()
@@ -122,9 +122,9 @@ public static class LambdaToSQLFactory
             MethodValue = (expInfo, dbType, expContext) =>
             {
                 if (expInfo.Args[1].MemberValue.ToInt32() != 0)
-                    return string.Format("{0}{2}{1}", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName, expInfo.Args[2].MemberValue);
+                    return string.Format(" {0}{2}{1} ", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName, expInfo.Args[2].MemberValue);
                 else
-                    return "1=1";
+                    return " 1=1 ";
             }
         });
         expMethods.Add(new SqlFuncExternal()
@@ -133,9 +133,9 @@ public static class LambdaToSQLFactory
             MethodValue = (expInfo, dbType, expContext) =>
             {
                 if ((bool)expInfo.Args[1].MemberValue != false)
-                    return string.Format("{0}={1}", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
+                    return string.Format(" {0}={1} ", expInfo.Args[0].MemberName, expInfo.Args[1].MemberName);
                 else
-                    return "1=1";
+                    return " 1=1 ";
             }
         });
         expMethods.Add(new SqlFuncExternal()
@@ -146,12 +146,12 @@ public static class LambdaToSQLFactory
                 int Value = expInfo.Args[1].MemberValue.ToInt32();
                 switch (Value)
                 {
-                    //case 0:return "1=1";
-                    case 1: return string.Format("{0} is null", expInfo.Args[0].MemberName);
-                    case 2: return string.Format("{0} is not null", expInfo.Args[0].MemberName);
-                    case 3: return string.Format("({0} is null or {0} = '')", expInfo.Args[0].MemberName);
-                    case 4: return string.Format("({0} is not null and {0} <> '')", expInfo.Args[0].MemberName);
-                    default: return "1=1";
+                    //case 0:return " 1=1 ";
+                    case 1: return string.Format(" {0} is null ", expInfo.Args[0].MemberName);
+                    case 2: return string.Format(" {0} is not null ", expInfo.Args[0].MemberName);
+                    case 3: return string.Format(" ({0} is null or {0} = '') ", expInfo.Args[0].MemberName);
+                    case 4: return string.Format(" ({0} is not null and {0} <> '') ", expInfo.Args[0].MemberName);
+                    default: return " 1=1 ";
                 }
             }
         });
