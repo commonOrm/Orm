@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 public static class CommonFun
 {
-    public static bool IsNull<T>(this ModelBase<T> model) where T : ModelBase<T>, new()
+    public static bool IsNull(this object obj)
     {
-        return model == null;
+        return obj == null;
     }
 
     public static string ToString2(this object obj)
