@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SqlSugar;
 
-public class SqlTranExtensions
+public class SqlTranExtensions : IDisposable
 {
     private readonly ILogger<SqlTranExtensions> logger;
 
@@ -38,14 +38,28 @@ public class SqlTranExtensions
             db.BeginTran();
         }
     }
+
     ~SqlTranExtensions()
     {
-        if (this.connection != null)
+        this.Dispose();
+    }
+    public void Dispose()
+    {
+        try
         {
-            if (this.connection.State == ConnectionState.Open) this.connection.Close();
+            if (this.connection != null)
+            {
+                if (this.connection.State == ConnectionState.Open)
+                    this.connection.Close();
+            }
+            else
+            {
+                try { this.db.Close(); } catch { };
+            }
+
+            GC.SuppressFinalize(this);
         }
-        else
-            try { this.db.Close(); } catch { }
+        catch { }
     }
 
     /// <summary>
