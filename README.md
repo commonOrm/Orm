@@ -1,6 +1,11 @@
 # Orm
 Orm
 
+### 打包命令
+```
+dotnet build -c=Release
+```
+
 ### 备份数据库 postgrepsql
 ```
 pg_dump -h 127.0.0.1 -p 5432 -U postgres -c -C -f xiroumedicalcare.sql  xiroumedicalcare

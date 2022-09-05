@@ -13,7 +13,7 @@
     <PackageProjectUrl>https://github.com/commonOrm</PackageProjectUrl>
     <RepositoryUrl>https://github.com/commonOrm</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <Version>1.1.4</Version>
+    <Version>1.1.5</Version>
     <Description></Description>
   </PropertyGroup>
 
@@ -23,8 +23,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <!--Operate Database-->
     <PackageReference Include="Dapper" Version="2.0.35" />
-    <PackageReference Include="Npgsql" Version="4.1.4" />
-    <PackageReference Include="SqlSugarCore" Version="5.0.4.1" />
+    <PackageReference Include="Npgsql" Version="5.0.7" />
+    <PackageReference Include="SqlSugarCore" Version="5.0.5.4" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
   </ItemGroup>
 
