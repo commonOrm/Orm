@@ -23,25 +23,31 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
     }
 
     /// <summary>
-    /// ĞÂÔö
+    /// æ–°å¢
     /// </summary>
-    /// <returns></returns>
+    /// <returns>è‡ªå¢ID æˆ– True/False(ä¸»é”®ä¸è‡ªå¢çš„æƒ…å†µ)</returns>
     public async Task<object> Add(SqlTranExtensions STE = null)
     {
+        var primaryKey = getPrimaryKeyColumn();
         if (STE != null)
         {
-            return await STE.db.Insertable<T>(model as T).ExecuteReturnIdentityAsync();
+            if (primaryKey.GetType() == typeof(int))
+                return await STE.db.Insertable<T>(model as T).ExecuteReturnIdentityAsync();
+            else
+                return await STE.db.Insertable<T>(model as T).ExecuteCommandAsync();
         }
         else
             using (var db = conn.GetSqlSugarClient())
             {
-                object key = await db.Insertable<T>(model as T).ExecuteReturnIdentityAsync();
-                return key;
+                if (primaryKey.GetType() == typeof(int))
+                    return await db.Insertable<T>(model as T).ExecuteReturnIdentityAsync();
+                else
+                    return await db.Insertable<T>(model as T).ExecuteCommandAsync();
             }
     }
 
     /// <summary>
-    /// ¸üĞÂ
+    /// æ›´æ–°
     /// </summary>
     /// <returns></returns>
     public async Task<bool> Update(SqlTranExtensions STE = null)
@@ -60,7 +66,7 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
     }
 
     /// <summary>
-    /// ¸üĞÂ °´Ìõ¼ş£¨¶àÌõ£©
+    /// æ›´æ–° æŒ‰æ¡ä»¶ï¼ˆå¤šæ¡ï¼‰
     /// </summary>
     /// <param name="set"></param>
     /// <param name="where"></param>
@@ -69,7 +75,7 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
     public async Task<bool> UpdateWhere(string set, string where, object param, SqlTranExtensions STE = null)
     {
         if (string.IsNullOrWhiteSpace(where))
-            throw new MyException($"¡¾UpdateWhere¡¿ where ²ÎÊı²»ÄÜÎª¿Õ");
+            throw new MyException($"ã€UpdateWhereã€‘ where å‚æ•°ä¸èƒ½ä¸ºç©º");
 
         var sql = $@"UPDATE ""{getTableName()}"" SET {set} WHERE {where};";
         if (STE != null)
@@ -106,7 +112,7 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
     }
 
     /// <summary>
-    /// É¾³ı
+    /// åˆ é™¤
     /// </summary>
     /// <returns></returns>
     public async Task<bool> Delete(SqlTranExtensions STE = null)
@@ -125,7 +131,7 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
     }
 
     /// <summary>
-    /// É¾³ı °´Ìõ¼ş£¨¶àÌõ£©
+    /// åˆ é™¤ æŒ‰æ¡ä»¶ï¼ˆå¤šæ¡ï¼‰
     /// </summary>
     /// <param name="where"></param>
     /// <param name="param"></param>
@@ -133,7 +139,7 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
     public async Task<bool> DeleteWhere(string where, object param, SqlTranExtensions STE = null)
     {
         if (string.IsNullOrWhiteSpace(where))
-            throw new MyException($"¡¾DeleteWhere¡¿ where ²ÎÊı²»ÄÜÎª¿Õ");
+            throw new MyException($"ã€DeleteWhereã€‘ where å‚æ•°ä¸èƒ½ä¸ºç©º");
 
         var sql = $@"DELETE FROM ""{getTableName()}"" WHERE {where} ;";
         if (STE != null)
@@ -164,7 +170,7 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
     }
 
     /// <summary>
-    /// »ñÈ¡Ò»¸ö¶ÔÏó ¿ÉÄÜÎªnull
+    /// è·å–ä¸€ä¸ªå¯¹è±¡ å¯èƒ½ä¸ºnull
     /// </summary>
     /// <param name="PrimaryKeyValue"></param>
     /// <returns></returns>
