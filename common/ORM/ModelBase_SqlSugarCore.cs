@@ -29,20 +29,22 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
     public async Task<object> Add(SqlTranExtensions STE = null)
     {
         var primaryKey = getPrimaryKeyColumn();
+        var primaryKeyIsInt = primaryKey.PropertyType == typeof(int);
+        
         if (STE != null)
         {
-            if (primaryKey.GetType() == typeof(int))
+            if (primaryKeyIsInt)
                 return await STE.db.Insertable<T>(model as T).ExecuteReturnIdentityAsync();
             else
-                return await STE.db.Insertable<T>(model as T).ExecuteCommandAsync();
+                return (await STE.db.Insertable<T>(model as T).ExecuteCommandAsync()) == 1;
         }
         else
             using (var db = conn.GetSqlSugarClient())
             {
-                if (primaryKey.GetType() == typeof(int))
+                if (primaryKeyIsInt)
                     return await db.Insertable<T>(model as T).ExecuteReturnIdentityAsync();
                 else
-                    return await db.Insertable<T>(model as T).ExecuteCommandAsync();
+                    return (await db.Insertable<T>(model as T).ExecuteCommandAsync()) == 1;
             }
     }
 
