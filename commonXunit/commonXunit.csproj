@@ -17,8 +17,8 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
     <PackageReference Include="coverlet.collector" Version="1.0.1" />
     <!--Operate Database-->
-    <PackageReference Include="Npgsql" Version="4.1.4" />
-    <PackageReference Include="SqlSugarCore" Version="5.0.4.1" />
+    <PackageReference Include="Npgsql" Version="5.0.7" />
+    <PackageReference Include="SqlSugarCore" Version="5.1.3.38" />
   </ItemGroup>
 
   <ItemGroup>
