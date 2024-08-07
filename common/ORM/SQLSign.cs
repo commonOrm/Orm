@@ -1,4 +1,5 @@
 ﻿using common.ConnectionProvider;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,17 +10,25 @@ namespace common.ORM
     {
         public static SQLSign Create(IConnectionProvider conn)
         {
+            IConfiguration configuration = ServiceLocator.Instance.GetService(typeof(IConfiguration)) as IConfiguration;
+            bool is_mssql2008 = configuration["MssqlEqualOrLessThan2008"].ToString2().ToLower() == "true".ToLower();
+
             SQLSign sqlsign = null;
 
             if (conn is MssqlConnectionProvider)
             {
-                if (((MssqlConnectionProvider)conn).MssqlEqualOrLessThan2008)
+                if (is_mssql2008)
                     sqlsign = new SQLSign_mssql_equalOrLessThan2008();
                 else
                     sqlsign = new SQLSign_mssql();
             }
-            else if (conn is NpgsqlConnectionProvider || conn is SqlSugarClientProvider)
+            else if (conn is NpgsqlConnectionProvider)
                 sqlsign = new SQLSign_pgsql();
+            else if (conn is SqlSugarClientProvider)
+            {
+                if (is_mssql2008) sqlsign = new SQLSign_mssql_equalOrLessThan2008();
+                else sqlsign = new SQLSign_pgsql();
+            }
 
             return sqlsign;
         }

@@ -29,8 +29,8 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
     public async Task<object> Add(SqlTranExtensions STE = null)
     {
         var primaryKey = getPrimaryKeyColumn();
-        var primaryKeyIsInt = primaryKey.PropertyType == typeof(int);
-        
+        var primaryKeyIsInt = primaryKey.PropertyType == typeof(int) || primaryKey.PropertyType == typeof(int?);
+
         if (STE != null)
         {
             if (primaryKeyIsInt)
