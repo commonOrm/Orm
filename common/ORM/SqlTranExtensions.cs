@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SqlSugar;
 
+//使用方式
+/*
+using (var STE = new SqlTranExtensions())
+{
+    code...
+}
+*/
 public class SqlTranExtensions : IDisposable
 {
     private readonly ILogger<SqlTranExtensions> logger;
