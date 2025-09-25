@@ -24,7 +24,7 @@ public class ModelBase_Dapper<T> : ModelBaseAbs<T>, IModelBase<T> where T : Mode
 
 
     /// <summary>
-    /// ÐÂÔö
+    /// ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     /// <returns></returns>
     public async Task<object> Add(SqlTranExtensions STE = null)
@@ -47,7 +47,7 @@ public class ModelBase_Dapper<T> : ModelBaseAbs<T>, IModelBase<T> where T : Mode
     }
 
     /// <summary>
-    /// ¸üÐÂ
+    /// ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     /// <returns></returns>
     public async Task<bool> Update(SqlTranExtensions STE = null)
@@ -70,7 +70,7 @@ public class ModelBase_Dapper<T> : ModelBaseAbs<T>, IModelBase<T> where T : Mode
     }
 
     /// <summary>
-    /// ¸üÐÂ °´Ìõ¼þ£¨¶àÌõ£©
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     /// <param name="set"></param>
     /// <param name="where"></param>
@@ -79,7 +79,7 @@ public class ModelBase_Dapper<T> : ModelBaseAbs<T>, IModelBase<T> where T : Mode
     public async Task<bool> UpdateWhere(string set, string where, object param, SqlTranExtensions STE = null)
     {
         if (string.IsNullOrWhiteSpace(where))
-            throw new MyException($"¡¾UpdateWhere¡¿ where ²ÎÊý²»ÄÜÎª¿Õ");
+            throw new MyException($"ï¿½ï¿½UpdateWhereï¿½ï¿½ where ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½");
 
         var sql = $@"UPDATE ""{getTableName()}"" SET {set} WHERE {where};";
         if (STE != null)
@@ -104,9 +104,14 @@ public class ModelBase_Dapper<T> : ModelBaseAbs<T>, IModelBase<T> where T : Mode
         return await UpdateWhere(setResult.Lambda_Sql.Replace("(", "").Replace(")", "").Replace("AND", ","), whereResult.Lambda_Sql, LambdaToSQLFactory.ConvertToDictionary(param), STE);
     }
 
+    public async Task<bool> UpdateByWhere(Expression<Func<T, T>> set, Expression<Func<T, bool>> where, SqlTranExtensions STE = null)
+    {
+        throw new NotImplementedException();
+    }
+
 
     /// <summary>
-    /// É¾³ý
+    /// É¾ï¿½ï¿½
     /// </summary>
     /// <returns></returns>
     public async Task<bool> Delete(SqlTranExtensions STE = null)
@@ -129,7 +134,7 @@ public class ModelBase_Dapper<T> : ModelBaseAbs<T>, IModelBase<T> where T : Mode
     }
 
     /// <summary>
-    /// É¾³ý °´Ìõ¼þ£¨¶àÌõ£©
+    /// É¾ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     /// <param name="where"></param>
     /// <param name="param"></param>
@@ -137,7 +142,7 @@ public class ModelBase_Dapper<T> : ModelBaseAbs<T>, IModelBase<T> where T : Mode
     public async Task<bool> DeleteWhere(string where, object param, SqlTranExtensions STE = null)
     {
         if (string.IsNullOrWhiteSpace(where))
-            throw new MyException($"¡¾DeleteWhere¡¿ where ²ÎÊý²»ÄÜÎª¿Õ");
+            throw new MyException($"ï¿½ï¿½DeleteWhereï¿½ï¿½ where ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½");
 
         var sql = $@"DELETE FROM ""{getTableName()}"" WHERE {where} ;";
         if (STE != null)
@@ -161,7 +166,7 @@ public class ModelBase_Dapper<T> : ModelBaseAbs<T>, IModelBase<T> where T : Mode
 
 
     /// <summary>
-    /// »ñÈ¡Ò»¸ö¶ÔÏó ¿ÉÄÜÎªnull
+    /// ï¿½ï¿½È¡Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Îªnull
     /// </summary>
     /// <param name="PrimaryKeyValue"></param>
     /// <returns></returns>

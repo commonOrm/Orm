@@ -38,7 +38,7 @@ public class ModelBase<T> where T : ModelBase<T>, new()
 
     static IModelBase<T> getModelBase()
     {
-        var a =  ServiceLocator.Instance.GetService(typeof(IModelBase<T>)) as IModelBase<T>;
+        var a = ServiceLocator.Instance.GetService(typeof(IModelBase<T>)) as IModelBase<T>;
         return a;
     }
 
@@ -73,7 +73,12 @@ public class ModelBase<T> where T : ModelBase<T>, new()
     }
     public static async Task<bool> UpdateWhere(Expression<Func<T, bool>> set, Expression<Func<T, bool>> where, SqlTranExtensions STE = null)
     {
-        return await getModelBase().UpdateWhere(set, where, STE);
+        throw new NotImplementedException();
+        // return await getModelBase().UpdateWhere(set, where, STE);
+    }
+    public static async Task<bool> UpdateByWhere(Expression<Func<T, T>> set, Expression<Func<T, bool>> where, SqlTranExtensions STE = null)
+    {
+        return await getModelBase().UpdateByWhere(set, where, STE);
     }
 
     /// <summary>

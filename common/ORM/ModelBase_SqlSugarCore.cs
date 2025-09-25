@@ -92,7 +92,31 @@ public class ModelBase_SqlSugarCore<T> : ModelBaseAbs<T>, IModelBase<T> where T 
                 return result > 0;
             }
     }
+
+    [Obsolete("方法已经被抛弃", true)]
     public async Task<bool> UpdateWhere(Expression<Func<T, bool>> set, Expression<Func<T, bool>> where, SqlTranExtensions STE = null)
+    {
+        throw new Exception("方法已经被抛弃");
+        // if (STE != null)
+        // {
+        //     var result = await STE.db.Updateable<T>()
+        //                             .SetColumns(set)
+        //                             .Where(where)
+        //                             .ExecuteCommandAsync();
+        //     return result > 0;
+        // }
+        // else
+        //     using (var db = conn.GetSqlSugarClient())
+        //     {
+        //         var result = await db.Updateable<T>()
+        //                             .SetColumns(set)
+        //                             .Where(where)
+        //                             .ExecuteCommandAsync();
+        //         return result > 0;
+        //     }
+    }
+
+    public async Task<bool> UpdateByWhere(Expression<Func<T, T>> set, Expression<Func<T, bool>> where, SqlTranExtensions STE = null)
     {
         if (STE != null)
         {

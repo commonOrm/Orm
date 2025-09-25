@@ -20,7 +20,10 @@ public interface IModelBase<T> where T : ModelBase<T>, new()
     Task<object> Add(SqlTranExtensions STE = null);
     Task<bool> Update(SqlTranExtensions STE = null);
     Task<bool> UpdateWhere(string set, string where, object param, SqlTranExtensions STE = null);
+
     Task<bool> UpdateWhere(Expression<Func<T, bool>> set, Expression<Func<T, bool>> where, SqlTranExtensions STE = null);
+    Task<bool> UpdateByWhere(Expression<Func<T, T>> set, Expression<Func<T, bool>> where, SqlTranExtensions STE = null);
+
     Task<bool> Delete(SqlTranExtensions STE = null);
     Task<bool> DeleteWhere(string where, object param, SqlTranExtensions STE = null);
     Task<bool> DeleteWhere(Expression<Func<T, bool>> where, SqlTranExtensions STE = null);
@@ -58,7 +61,7 @@ public abstract class ModelBaseAbs<T> where T : ModelBase<T>, new()
     }
 
     /// <summary>
-    /// »ñÈ¡±íÃû
+    /// ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     /// <returns></returns>
     protected string getTableName()
@@ -67,7 +70,7 @@ public abstract class ModelBaseAbs<T> where T : ModelBase<T>, new()
     }
 
     /// <summary>
-    /// »ñÈ¡Ö÷¼ü×Ö¶Î
+    /// ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶ï¿½
     /// </summary>
     /// <returns></returns>
     protected PropertyInfo getPrimaryKeyColumn()
@@ -83,11 +86,11 @@ public abstract class ModelBaseAbs<T> where T : ModelBase<T>, new()
             if (sugarColumn != null && sugarColumn.IsPrimaryKey)
                 return pi;
         }
-        throw new MyException($"{getTableName()}Ã»ÓÐÉèÖÃÖ÷¼ü");
+        throw new MyException($"{getTableName()}Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
     }
 
     /// <summary>
-    /// »ñÈ¡Ö÷¼üÃû³Æ
+    /// ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     /// <returns></returns>
     protected string getPrimaryKeyName()
@@ -96,7 +99,7 @@ public abstract class ModelBaseAbs<T> where T : ModelBase<T>, new()
     }
 
     /// <summary>
-    /// »ñÈ¡Ö÷¼üÖµ
+    /// ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½Öµ
     /// </summary>
     /// <returns></returns>
     protected object getPrimaryKeyValue()
@@ -105,9 +108,9 @@ public abstract class ModelBaseAbs<T> where T : ModelBase<T>, new()
     }
 
     /// <summary>
-    /// »ñÈ¡ËùÓÐ×Ö¶Î
+    /// ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶ï¿½
     /// </summary>
-    /// <param name="excludePrimaryKey">ÊÇ·ñÅÅ³ýÖ÷¼ü×Ö¶Î</param>
+    /// <param name="excludePrimaryKey">ï¿½Ç·ï¿½ï¿½Å³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶ï¿½</param>
     /// <returns></returns>
     protected List<string> getColumns(string formatColumn = "{0}", bool excludePrimaryKey = true)
     {
@@ -125,10 +128,10 @@ public abstract class ModelBaseAbs<T> where T : ModelBase<T>, new()
     }
 
     /// <summary>
-    /// °Ñ×Ö¶Î×ª³É×Ö·û´®(²»°üº¬Ö÷¼ü)
+    /// ï¿½ï¿½ï¿½Ö¶ï¿½×ªï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
     /// </summary>
-    /// <param name="separator">·Ö¸î×Ö·û</param>
-    /// <param name="formatColumn">¸ñÊ½»¯×Ö¶Î</param>
+    /// <param name="separator">ï¿½Ö¸ï¿½ï¿½Ö·ï¿½</param>
+    /// <param name="formatColumn">ï¿½ï¿½Ê½ï¿½ï¿½ï¿½Ö¶ï¿½</param>
     /// <returns></returns>
     protected string getColumnsStringBySeparator(string separator = ",", string formatColumn = "{0}")
     {
@@ -136,7 +139,7 @@ public abstract class ModelBaseAbs<T> where T : ModelBase<T>, new()
     }
 
     /// <summary>
-    /// »ñÈ¡ËùÓÐ×Ö¶ÎµÄÖµ£¨Ä¬ÈÏ²»°üº¬Ö÷¼ü£©
+    /// ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶Îµï¿½Öµï¿½ï¿½Ä¬ï¿½Ï²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     /// <param name="excludePrimaryKey"></param>
     /// <returns></returns>
@@ -152,7 +155,7 @@ public abstract class ModelBaseAbs<T> where T : ModelBase<T>, new()
             if (excludePrimaryKey && primaryKeyName == pi.Name) continue;
 
             var val = pi.GetValue(model);
-            //Êý¾Ý¿âÀïÃæÊÇvarchar£¬Èç¹ûÖµÊÇnull¾Í×Ô¶¯±äÎª¿Õ£¬·ÀÖ¹´æÈënull
+            //ï¿½ï¿½ï¿½Ý¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½varcharï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½nullï¿½ï¿½ï¿½Ô¶ï¿½ï¿½ï¿½Îªï¿½Õ£ï¿½ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½ï¿½null
             if (val == null && pi.PropertyType == typeof(string)) val = "";
             Dic.Add(pi.Name, val);
         }
@@ -161,7 +164,7 @@ public abstract class ModelBaseAbs<T> where T : ModelBase<T>, new()
 
 
     /// <summary>
-    /// ¼ì²éÊÇ·ñ´æÔÚ¼ÇÂ¼
+    /// ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Ú¼ï¿½Â¼
     /// </summary>
     /// <param name="where"></param>
     /// <param name="param"></param>
@@ -178,7 +181,7 @@ public abstract class ModelBaseAbs<T> where T : ModelBase<T>, new()
 
 
     /// <summary>
-    /// »ñÈ¡Ò»¸ö¶ÔÏó ¿ÉÄÜÎªnull
+    /// ï¿½ï¿½È¡Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Îªnull
     /// </summary>
     /// <param name="where"></param>
     /// <param name="param"></param>
@@ -197,7 +200,7 @@ public abstract class ModelBaseAbs<T> where T : ModelBase<T>, new()
 
 
     /// <summary>
-    /// »ñÈ¡Ò»¸ö¶ÔÏó¼¯ºÏ
+    /// ï¿½ï¿½È¡Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ó¼¯ºï¿½
     /// </summary>
     /// <param name="where"></param>
     /// <param name="param"></param>
@@ -212,7 +215,7 @@ public abstract class ModelBaseAbs<T> where T : ModelBase<T>, new()
         orderby = orderby ?? @$" ""{getPrimaryKeyName()}"" ASC ";
         return new List2<T>(conn, getTableName(), where, param, top, orderby);
     }
-    
+
 
     public async Task<DataTable> GetFieldList(string fields, string where, object param, int top = int.MaxValue, string orderby = null)
     {
@@ -232,7 +235,7 @@ public abstract class ModelBaseAbs<T> where T : ModelBase<T>, new()
 
 
     /// <summary>
-    /// »ñÈ¡·ÖÒ³¶ÔÏó
+    /// ï¿½ï¿½È¡ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     /// <returns></returns>
     public PagerEx<T> Pager(string where, object param, int pageindex, int pagesize, string orderby = null)
@@ -245,7 +248,7 @@ public abstract class ModelBaseAbs<T> where T : ModelBase<T>, new()
     }
 
     /// <summary>
-    /// »ñÈ¡·ÖÒ³¶ÔÏó
+    /// ï¿½ï¿½È¡ï¿½ï¿½Ò³ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     /// <returns></returns>
     public PagerEx<T> Pager(string where, object param, int pageindex, int pagesize, string sort, SortBy order)

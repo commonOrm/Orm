@@ -26,8 +26,12 @@ namespace common.ORM
                 sqlsign = new SQLSign_pgsql();
             else if (conn is SqlSugarClientProvider)
             {
-                if (is_mssql2008) sqlsign = new SQLSign_mssql_equalOrLessThan2008();
-                else sqlsign = new SQLSign_pgsql();
+                if (
+                    is_mssql2008 && string.IsNullOrWhiteSpace(configuration["NpgsqlConnectionString"].ToString2())
+                )
+                    sqlsign = new SQLSign_mssql_equalOrLessThan2008();
+                else
+                    sqlsign = new SQLSign_pgsql();
             }
 
             return sqlsign;
